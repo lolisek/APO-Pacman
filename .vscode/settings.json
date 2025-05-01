@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        ".env*": "dotenv",
+        "mzapo_phys.h": "c",
+        "mzapo_regs.h": "c"
+    }
+}

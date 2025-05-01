@@ -1,0 +1,1 @@
+// Base entity struct and movement logic
