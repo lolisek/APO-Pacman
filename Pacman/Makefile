@@ -58,13 +58,12 @@ LINKER = $(CXX)
 LDFLAGS += $(CXXFLAGS) $(CPPFLAGS)
 endif
 
+# Build the project
+all: $(TARGET_EXE)
 
 # Ensure the build directory exists
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
-
-# Build the project
-all: $(TARGET_EXE)
 
 # Rule to compile C source files into object files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
