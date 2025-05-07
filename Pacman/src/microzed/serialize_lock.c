@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "serialize_lock.h"
+#include "../include/microzed/serialize_lock.h"
 
 const char *serialize_lock_fname = "/run/lock/serialize_lock";
 int serialize_lock_fd = -1;

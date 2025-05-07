@@ -1,0 +1,1 @@
+// Tile types (wall, pellet, empty, etc.)
