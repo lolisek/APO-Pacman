@@ -13,7 +13,7 @@ ppm_image_t *load_ppm(const char *filename) {
     char header[3];
     int max_color_value;
     int width, height;
-    if (fscanf(file, "%2s\n%d %d\n%d\n", header, &width, &height, &max_color_value) != 3) {
+    if (fscanf(file, "%2s\n%d %d\n%d\n", header, &width, &height, &max_color_value) != 4) {
         fprintf(stderr, "Invalid PPM file format\n");
         fclose(file);
         return NULL;
@@ -54,7 +54,7 @@ ppm_image_t *load_ppm(const char *filename) {
     }
 
     int result = fread(image->data, 3, image->width * image->height, file);
-    if (result != image->width * image->height * 3) {
+    if (result != image->width * image->height) {
         fprintf(stderr, "Failed to read image data\n");
         free(image->data);
         free(image);
