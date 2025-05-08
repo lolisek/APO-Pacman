@@ -20,6 +20,8 @@
 #define PACMAN_SPEED 2
 #define GHOST_SPEED 1
 
+
+
 #define FRIGHTENED_MODE_DURATION 5 // Duration in seconds
 #define SCATTER_MODE_DURATION 7    // Duration in seconds
 #define GHOST_MODE_DURATION 20     // Duration in seconds
