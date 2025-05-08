@@ -7,6 +7,8 @@
 // Map structure
 typedef struct
 {
+    int width;                            // Width of the map in tiles
+    int height;                           // Height of the map in tiles
     Tile tiles[NUM_TILES_Y][NUM_TILES_X]; // 2D array of tiles
 } Map;
 
