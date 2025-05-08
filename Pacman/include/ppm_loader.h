@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 
+#define LCD_WIDTH  480
+#define LCD_HEIGHT 320
+#define LCD_SIZE   (LCD_WIDTH * LCD_HEIGHT)
+
 struct pixel {
     unsigned r:5;
     unsigned g:6;
@@ -19,7 +23,7 @@ struct pixel {
 
 ppm_image_t *load_ppm(const char *filename);
 void free_ppm(ppm_image_t *image);
-void draw_ppm_image(uint16_t *lcd_buffer, const ppm_image_t *image, int x, int y, int lcd_width, int lcd_height);
+void draw_ppm_image(uint16_t *fb, int x, int y, const ppm_image_t *img);
 
 #endif
 // End of PPM_LOADER_H

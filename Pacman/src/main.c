@@ -28,57 +28,57 @@
 #include "mzapo_regs.h"
 #include "serialize_lock.h"
 #include "mzapo_peri.h"
+#include "main_menu.h"
 
-#define LCD_WIDTH  320
-#define LCD_HEIGHT 480
-#define LCD_SIZE   (LCD_WIDTH * LCD_HEIGHT)
+#define BACKGROUND_COLOR 0x0000  // Black
+#define TEXT_COLOR 0xFFFF        // White
+#define HIGHLIGHT_COLOR 0xF800   // Red
 
-#define MENU_ITEMS 3
-const char *menu_items[MENU_ITEMS] = {
-    "Play",
-    "Show scoreboard",
-    "Exit"
-};
-
-int main(int argc, char *argv[])
-{
-
-  /* Serialize execution of applications */ 
-
-  /* Try to acquire lock the first */
+int main(int argc, char *argv[]) {
   if (serialize_lock(1) <= 0) {
-    printf("System is occupied\n");
-
-    if (1) {
-      printf("Waiting\n");
-      /* Wait till application holding lock releases it or exits */
-      serialize_lock(0);
-    }
+      printf("System is occupied\n");
+      if (1) {
+          printf("Waiting\n");
+          serialize_lock(0);
+      }
   }
-  
+
+  mzapo_setup();
+
   ppm_image_t *menu_bgr = load_ppm("/tmp/veru/resources/menu.ppm");
   if (!menu_bgr) {
-    fprintf(stderr, "Failed to load menu image\n");
-    return -1;
+      fprintf(stderr, "Failed to load menu image\n");
+      return -1;
   }
 
-  lcd_update((uint16_t*)menu_bgr->pixels);
-  sleep(20);
+  menu_state_t menu;
+  init_menu(&menu);
+  draw_menu(&menu, menu_bgr);
+  lcd_update(menu.framebuffer);
+
+  while (1) {
+      int action = handle_menu_input(&menu);
+      
+      if (action == 1 || menu.selected != menu.last_selected) {
+        draw_menu(&menu, menu_bgr);
+        lcd_update(menu.framebuffer);
+        menu.last_selected = menu.selected;
+      } else if (action >= 2) {
+          // Menu item selected
+          menu.selected = action - 2;
+          printf("Selected: %s\n", menu_items[action - 2]);
+          
+          // Handle selection
+          if (menu.selected == 2) {
+              break;
+          }
+          // Add handling for other options here
+      }
+      
+      sleep(1);
+  }
 
   free_ppm(menu_bgr);
-
-
-
-
-
-  printf("Hello world\n");
-
-  sleep(4);
-
-  printf("Goodbye world\n");
-
-  /* Release the lock */
   serialize_unlock();
-
   return 0;
 }

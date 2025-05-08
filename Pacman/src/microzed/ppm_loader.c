@@ -82,25 +82,21 @@ void free_ppm(ppm_image_t *image) {
     }
 }
 
-void draw_ppm_image(uint16_t *lcd_buffer, const ppm_image_t *image, 
-    int x, int y, int lcd_width, int lcd_height) {
-    if (!image || !lcd_buffer) return;
+void draw_ppm_image(uint16_t *fb, int x, int y, const ppm_image_t *img) {
+    for (int iy = 0; iy < img->height; iy++) {
+        for (int ix = 0; ix < img->width; ix++) {
+            int px = x + ix;
+            int py = y + iy;
 
-    const uint16_t *src_pixels = (const uint16_t *)image->pixels;
-
-    for (int j = 0; j < image->height; j++) {
-        int dest_y = y + j;
-        if (dest_y < 0 || dest_y >= lcd_height) continue;
-
-        for (int i = 0; i < image->width; i++) {
-            int dest_x = x + i;
-            if (dest_x >= 0 && dest_x < lcd_width) {
-                int src_pos = j * image->width + i;
-                int dest_pos = dest_y * lcd_width + dest_x;
-                
-                lcd_buffer[dest_pos] = src_pixels[src_pos];
+            // Skip if outside screen bounds
+            if (px < 0 || px >= LCD_WIDTH || py < 0 || py >= LCD_HEIGHT) {
+                continue;
             }
+
+            // Copy pixel from image to framebuffer
+            memcpy(&fb[py * LCD_WIDTH + px], &img->pixels[iy * img->width + ix], sizeof(uint16_t));
         }
     }
 }
+
 // End of PPM_LOADER_C

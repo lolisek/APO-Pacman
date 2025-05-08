@@ -10,8 +10,6 @@ void mzapo_setup(void) {
     mzapo_spiled = map_phys_address(SPILED_REG_BASE_PHYS, SPILED_REG_SIZE, 0);
     mzapo_parlcd = map_phys_address(PARLCD_REG_BASE_PHYS, PARLCD_REG_SIZE, 0);
 }
-/* --------------------------------------------------------------- */
-
 
 /* LED DIODES */
 
@@ -71,11 +69,6 @@ bool led_is_on(uint8_t index) {
     return (bool) (*adress & (0x1 << index));
 }
 
-
-
-/* --------------------------------------------------------------- */
-
-
 /* LCD DISPLAY*/
 
 void lcd_update(uint16_t *fb) {
@@ -89,9 +82,6 @@ void lcd_update(uint16_t *fb) {
         *data = *fb++;  
 
 }
-
-/* --------------------------------------------------------------- */
-
 
 /* KNOBS*/
 
@@ -143,4 +133,3 @@ bool blue_knob_is_pressed(void) {
     volatile uint32_t *adress = (volatile uint32_t *)(mzapo_spiled + SPILED_REG_KNOBS_8BIT_o);
     return (uint8_t)(*adress >> 24) & 0x1;
 }
-/* --------------------------------------------------------------- */

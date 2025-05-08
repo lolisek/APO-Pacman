@@ -24,6 +24,7 @@ SOURCES = $(SRC_DIR)/main.c \
           $(MICROZED_DIR)/serialize_lock.c \
 		  $(MICROZED_DIR)/ppm_loader.c \
 		  $(MICROZED_DIR)/mzapo_peri.c \
+		  $(MICROZED_DIR)/main_menu.c \
           $(FONTS_DIR)/font_prop14x16.c \
           $(FONTS_DIR)/font_rom8x16.c
 
