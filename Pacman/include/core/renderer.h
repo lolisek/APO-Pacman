@@ -3,11 +3,13 @@
 
 #include "../entities/entity.h"
 #include "../map/map.h"
+#include "../core/game_state.h"
 
 /**
  * @brief Renders the entire game state.
+ * @param game_state The current game state to render.
  */
-void render();
+void render(GameState *game_state);
 
 /**
  * @brief Renders a specific entity.

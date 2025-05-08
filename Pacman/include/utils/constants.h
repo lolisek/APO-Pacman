@@ -7,9 +7,11 @@
 // Game-wide constants and configuration
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
+
+#define NUM_TILES_X 23
+#define NUM_TILES_Y 25
+
 #define TILE_SIZE 16
-#define NUM_TILES_X (SCREEN_WIDTH / TILE_SIZE)
-#define NUM_TILES_Y (SCREEN_HEIGHT / TILE_SIZE)
 
 #define NUM_GHOSTS 4
 #define NUM_PELLETS 240
@@ -17,6 +19,8 @@
 
 #define PACMAN_SPEED 2
 #define GHOST_SPEED 1
+
+
 
 #define FRIGHTENED_MODE_DURATION 5 // Duration in seconds
 #define SCATTER_MODE_DURATION 7    // Duration in seconds

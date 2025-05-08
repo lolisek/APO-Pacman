@@ -2,17 +2,19 @@
 #define APO_PACMAN_GAME_STATE_H
 
 #include <stdbool.h>
-#include "entities/entity.h"
-#include "utils/constants.h"
-#include "map/map.h"
+#include "../entities/entity.h"
+#include "../utils/constants.h"
+#include "../map/map.h"
+#include "../entities/pacman.h"
+#include "../entities/ghost.h"
 
 /**
  * @brief Represents the overall state of the game.
  */
 typedef struct
 {
-    Entity pacman;             ///< Pac-Man entity
-    Entity ghosts[NUM_GHOSTS]; ///< Array of ghost entities
+    Pacman pacman;             ///< Pac-Man entity
+    Ghost ghosts[NUM_GHOSTS]; ///< Array of ghost entities
     int score;                 ///< Current game score
     int lives;                 ///< Remaining lives
     int frightened_timer;      ///< Timer for frightened mode
