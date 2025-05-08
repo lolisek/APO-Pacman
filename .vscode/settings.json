@@ -3,5 +3,19 @@
         ".env*": "dotenv",
         "mzapo_phys.h": "c",
         "mzapo_regs.h": "c"
-    }
+    },
+    "editor.defaultFormatter": "ms-vscode.cpptools", // Use the C/C++ extension formatter
+    "editor.formatOnSave": true, // Enable formatting on save
+    "[c]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools", // Formatter for C files
+        "editor.formatOnSaveMode": "modifications" // Only format modified lines
+    },
+    "[cpp]": {
+        "editor.defaultFormatter": "ms-vscode.cpptools", // Formatter for C++ files
+        "editor.formatOnSaveMode": "modifications" // Only format modified lines
+    },
+    "editor.formatOnSaveExclude": [
+        "**/src/microzed/**", // Exclude files in the microzed folder
+        "**/src/fonts/**" // Exclude files in the fonts folder
+    ]
 }
