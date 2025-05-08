@@ -7,18 +7,12 @@
 #define LCD_HEIGHT 320
 #define LCD_SIZE   (LCD_WIDTH * LCD_HEIGHT)
 
-struct pixel {
-    unsigned r:5;
-    unsigned g:6;
-    unsigned b:5;
- } __attribute__((packed));
-
  typedef struct {
     uint16_t width;
     uint16_t height;
     uint16_t max_color_value;
     uint8_t *data; // RGB888 data - loaded from PPM
-    struct pixel *pixels; // RGB565 data
+    uint16_t *pixels; // RGB565 data
 } ppm_image_t;
 
 ppm_image_t *load_ppm(const char *filename);

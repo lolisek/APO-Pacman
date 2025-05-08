@@ -44,7 +44,7 @@ ppm_image_t *load_ppm(const char *filename) {
         return NULL;
     }
 
-    image->pixels = malloc(image->width * image->height * sizeof(struct pixel));
+    image->pixels = malloc(image->width * image->height * sizeof(uint16_t));
     if (!image->pixels) {
         perror("Failed to allocate memory for image pixels");
         free(image->data);
@@ -63,12 +63,19 @@ ppm_image_t *load_ppm(const char *filename) {
     }
 
     fclose(file);
+    size_t pixel_count = image->width * image->height;
 
     // Convert RGB to 16-bit color format (RGB565)
-    for (unsigned i = 0; i < width * height; i++) {
-        image->pixels[i].r = image->data[i*3] >> 3;
-        image->pixels[i].g = image->data[i*3+1] >> 2;
-        image->pixels[i].b = image->data[i*3+2] >> 3;
+    for (size_t i = 0; i < pixel_count; i++) {
+        uint8_t r = image->data[3 * i];
+        uint8_t g = image->data[3 * i + 1];
+        uint8_t b = image->data[3 * i + 2];
+
+        uint16_t r5 = (r >> 3) & 0x1F;
+        uint16_t g6 = (g >> 2) & 0x3F;
+        uint16_t b5 = (b >> 3) & 0x1F;
+
+        image->pixels[i] = (r5 << 11) | (g6 << 5) | b5;
     }
 
     return image;
@@ -88,13 +95,11 @@ void draw_ppm_image(uint16_t *fb, int x, int y, const ppm_image_t *img) {
             int px = x + ix;
             int py = y + iy;
 
-            // Skip if outside screen bounds
             if (px < 0 || px >= LCD_WIDTH || py < 0 || py >= LCD_HEIGHT) {
                 continue;
             }
 
-            // Copy pixel from image to framebuffer
-            memcpy(&fb[py * LCD_WIDTH + px], &img->pixels[iy * img->width + ix], sizeof(uint16_t));
+            fb[py * LCD_WIDTH + px] = img->pixels[iy * img->width + ix];
         }
     }
 }
