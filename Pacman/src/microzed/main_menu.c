@@ -13,7 +13,12 @@ void init_menu(menu_state_t *menu) {
     memset(menu->framebuffer, 0, sizeof(menu->framebuffer));
 }
 
-void draw_menu(menu_state_t *menu, ppm_image_t *menu_bgr) {
+void draw_menu(menu_state_t *menu) {
+    ppm_image_t *menu_bgr = load_ppm("/tmp/veru/resources/menu.ppm");
+    if (!menu_bgr) {
+        fprintf(stderr, "Failed to load menu image\n");
+        return;
+    }
     memcpy(menu->framebuffer, menu_bgr->pixels, LCD_SIZE * sizeof(uint16_t));
 
     render_arrows(menu->selected, menu->framebuffer);
@@ -22,29 +27,34 @@ void draw_menu(menu_state_t *menu, ppm_image_t *menu_bgr) {
 }
 
 int handle_menu_input(menu_state_t *menu) {
+    static uint32_t last_press_time = 0;
+    uint32_t current_time = clock() * 1000;
+    
     uint8_t current_knob = get_red_knob_rotation();
     int8_t delta = (int8_t)(current_knob - menu->last_knob_pos);
 
-    // Wrap knob difference to signed value range
-    if (delta > 127) delta -= 256;
-    if (delta < -127) delta += 256;
-
-    if (delta > 1) {
-        menu->selected = (menu->selected + 1) % MENU_ITEMS;
+    // Handle knob rotation
+    if (abs(delta) > 1) {  // Add some threshold to prevent noise
+        if (delta > 1) {
+            menu->selected = (menu->selected - 1 + MENU_ITEMS) % MENU_ITEMS;
+        } else if (delta < -1) {
+            menu->selected = (menu->selected + 1) % MENU_ITEMS;
+        }
         menu->last_knob_pos = current_knob;
-        return 1;
-    } else if (delta < -1) {
-        menu->selected = (menu->selected - 1 + MENU_ITEMS) % MENU_ITEMS;
-        menu->last_knob_pos = current_knob;
-        return 1;
+        return 1;  // Redraw needed
     }
 
+    // Handle knob press with debouncing
     if (red_knob_is_pressed()) {
-        return menu->selected + 2;
+        if (current_time - last_press_time > DEBOUNCE_DELAY_MS) {
+            last_press_time = current_time;
+            return menu->selected + 2;  // Return selection
+        }
     }
 
-    return 0;
+    return 0;  // No action needed
 }
+
 
   void render_arrows(int selected, uint16_t *fb) {
     ppm_image_t *arrow_left = load_ppm("/tmp/veru/resources/arrow_left.ppm");

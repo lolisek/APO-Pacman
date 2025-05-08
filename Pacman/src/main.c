@@ -22,13 +22,13 @@
 #include <unistd.h>
 
 #include "ppm_loader.h"
-
 #include "mzapo_parlcd.h"
 #include "mzapo_phys.h"
 #include "mzapo_regs.h"
 #include "serialize_lock.h"
 #include "mzapo_peri.h"
 #include "main_menu.h"
+#include "display_scoreboard.h"
 
 #define BACKGROUND_COLOR 0x0000  // Black
 #define TEXT_COLOR 0xFFFF        // White
@@ -53,29 +53,53 @@ int main(int argc, char *argv[]) {
 
   menu_state_t menu;
   init_menu(&menu);
-  draw_menu(&menu, menu_bgr);
+  draw_menu(&menu);
   lcd_update(menu.framebuffer);
 
   while (1) {
       int action = handle_menu_input(&menu);
       
       if (action == 1 || menu.selected != menu.last_selected) {
-        draw_menu(&menu, menu_bgr);
+        draw_menu(&menu);
         lcd_update(menu.framebuffer);
         menu.last_selected = menu.selected;
+
+        usleep(SCROLL_DELAY);
+
       } else if (action >= 2) {
           // Menu item selected
           menu.selected = action - 2;
           printf("Selected: %s\n", menu_items[action - 2]);
-          
+
           // Handle selection
-          if (menu.selected == 2) {
+          if (menu.selected == 0) {
+              // Start game
+              printf("Starting game...\n");
+          } else if (menu.selected == 1) {
+              // Show scoreboard
+              printf("Showing scoreboard...\n");
+              draw_scoreboard(NULL, menu.framebuffer, NULL);
+              while (!blue_knob_is_pressed()) {
+                  int sb_action = handle_scoreboard_input(NULL, 0);
+                  if (sb_action == 1) {
+                      // Scroll up
+                      scroll_scoreboard(NULL, -1);
+                  } else if (sb_action == 2) {
+                      // Scroll down
+                      scroll_scoreboard(NULL, 1);
+                  }
+              }
+
+              draw_menu(&menu);
+              lcd_update(menu.framebuffer);
+              menu.selected = 1;
+          } else if (menu.selected == 2) {
+              printf("Exiting...\n");
               break;
           }
-          // Add handling for other options here
       }
       
-      sleep(1);
+      usleep(INPUT_POLL_DELAY_US);
   }
 
   free_ppm(menu_bgr);

@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "ppm_loader.h"
 #include "mzapo_peri.h"
 #include "mzapo_regs.h"
@@ -16,6 +17,10 @@
 #define ARROW_SHAFT_WIDTH 6
 #define ARROW_HEAD_LENGTH 10
 #define ARROW_COLOR 0xF7A0 // Yellow
+
+#define DEBOUNCE_DELAY_MS 50
+#define INPUT_POLL_DELAY_US 10000  // 10ms
+#define SCROLL_DELAY INPUT_POLL_DELAY_US * 80
 
 #define MENU_ITEMS 3
 extern const char *menu_items[MENU_ITEMS];
@@ -28,7 +33,7 @@ typedef struct {
 } menu_state_t;
 
 void init_menu(menu_state_t *menu);
-void draw_menu(menu_state_t *menu, ppm_image_t *menu_bgr);
+void draw_menu(menu_state_t *menu);
 int handle_menu_input(menu_state_t *menu);
 void render_arrows(int selected, uint16_t *fb);
 
