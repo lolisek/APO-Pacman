@@ -10,25 +10,30 @@ CXX = arm-linux-gnueabihf-g++
 
 # -----custom edits below-----
 SRC_DIR = src
-MICROZED_DIR = $(SRC_DIR)/microzed
-FONTS_DIR = $(SRC_DIR)/fonts
+INC_DIR = include
+BUILD_DIR = build
+
+
+
 
 # -----STEP 1.-----
+MICROZED_DIR = $(SRC_DIR)/microzed
+FONTS_DIR = $(SRC_DIR)/fonts
 CORE_DIR = $(SRC_DIR)/core
 ENTITIES_DIR = $(SRC_DIR)/entities
 MAP_DIR = $(SRC_DIR)/map
 UTILS_DIR = $(SRC_DIR)/utils
-
-INC_DIR = include
-BUILD_DIR = build
 # -----custom edits above-----
 
-CPPFLAGS = -I $(INC_DIR)
+# Include directories
+CPPFLAGS = -I $(INC_DIR) 
+
+
 CFLAGS = -g -std=gnu99 -O1 -Wall
 CXXFLAGS = -g -std=gnu++11 -O1 -Wall
 #LDFLAGS +=
 LDFLAGS += -static
-LDLIBS += -lrt -lpthread
+LDLIBS += -lrt -lpthread -lm
 #LDLIBS += -lm
 
 
