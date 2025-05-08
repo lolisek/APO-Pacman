@@ -26,32 +26,13 @@
 #include "../include/microzed/mzapo_regs.h"
 #include "../include/microzed/serialize_lock.h"
 
+#include "../include/core/game.h"
+
 int main(int argc, char *argv[])
 {
 
-  /* Serialize execution of applications */
-
-  /* Try to acquire lock the first */
-  if (serialize_lock(1) <= 0)
-  {
-    printf("System is occupied\n");
-
-    if (1)
-    {
-      printf("Waitting\n");
-      /* Wait till application holding lock releases it or exits */
-      serialize_lock(0);
-    }
-  }
-
-  printf("Hello world\n");
-
-  sleep(4);
-
-  printf("Goodbye world\n");
-
-  /* Release the lock */
-  serialize_unlock();
+  printf("Game loop started\n");
+  run_game_loop();
 
   return 0;
 }
