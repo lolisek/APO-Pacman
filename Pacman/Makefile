@@ -27,6 +27,7 @@ SOURCES = $(SRC_DIR)/main.c \
 		  $(MICROZED_DIR)/main_menu.c \
 		  $(MICROZED_DIR)/draw_text.c \
 		  $(MICROZED_DIR)/display_scoreboard.c \
+		  $(MICROZED_DIR)/custom_keyboard.c \
           $(FONTS_DIR)/font_prop14x16.c \
           $(FONTS_DIR)/font_rom8x16.c
 

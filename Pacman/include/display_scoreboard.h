@@ -8,6 +8,8 @@
 #include "mzapo_regs.h"
 #include "ppm_loader.h"
 #include "font_types.h"
+#include "mzapo_peri.h"
+#include "draw_text.h"
 
 #define SCORES_FILE "/tmp/veru/resources/scores.txt"
 #define MAX_SCORES 20

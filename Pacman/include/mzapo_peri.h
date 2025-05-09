@@ -7,6 +7,9 @@
 #include "mzapo_phys.h"
 #include <stdlib.h>
 
+#define KNOB_CLICK_DELAY_MS 100000
+#define KNOB_ROTATION_DELAY_MS 100000
+
 void mzapo_setup(void);
 
 void *get_mzapo_spiled(void);

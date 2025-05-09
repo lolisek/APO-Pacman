@@ -104,4 +104,22 @@ void draw_ppm_image(uint16_t *fb, int x, int y, const ppm_image_t *img) {
     }
 }
 
+void draw_ppm_image_transparent(uint16_t *fb, int x, int y, const ppm_image_t *img, uint16_t transparent_color) {
+    for (int iy = 0; iy < img->height; iy++) {
+        for (int ix = 0; ix < img->width; ix++) {
+            int px = x + ix;
+            int py = y + iy;
+
+            if (px < 0 || px >= LCD_WIDTH || py < 0 || py >= LCD_HEIGHT) {
+                continue;
+            }
+
+            uint16_t color = img->pixels[iy * img->width + ix];
+            if (color != transparent_color) {
+                fb[py * LCD_WIDTH + px] = color;
+            }
+        }
+    }
+}
+
 // End of PPM_LOADER_C

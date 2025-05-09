@@ -29,6 +29,7 @@
 #include "mzapo_peri.h"
 #include "main_menu.h"
 #include "display_scoreboard.h"
+#include "custom_keyboard.h"
 
 #define BACKGROUND_COLOR 0x0000  // Black
 #define TEXT_COLOR 0xFFFF        // White
@@ -79,6 +80,8 @@ int main(int argc, char *argv[]) {
         if (menu.selected == 0) {
             // Start game
             printf("Starting game...\n");
+            handle_keyboard_input(menu.framebuffer, &font_winFreeSystem14x16);
+            
         } else if (menu.selected == 1) {
             // Show scoreboard
             printf("Showing scoreboard...\n");

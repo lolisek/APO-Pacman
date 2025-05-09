@@ -18,6 +18,7 @@
 ppm_image_t *load_ppm(const char *filename);
 void free_ppm(ppm_image_t *image);
 void draw_ppm_image(uint16_t *fb, int x, int y, const ppm_image_t *img);
+void draw_ppm_image_transparent(uint16_t *fb, int x, int y, const ppm_image_t *img, uint16_t transparent_color);
 
 #endif
 // End of PPM_LOADER_H
