@@ -17,7 +17,7 @@
 #define NUM_PELLETS 240
 #define NUM_POWER_PELLETS 4
 
-#define PACMAN_SPEED 2
+#define PACMAN_SPEED 1
 #define GHOST_SPEED 1
 
 
