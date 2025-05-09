@@ -1,17 +1,17 @@
 #ifndef DISPLAY_SCOREBOARD_H
 #define DISPLAY_SCOREBOARD_H
 
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include "font_types.h"
+#include "mzapo_parlcd.h"
+#include "mzapo_phys.h"
+#include "mzapo_regs.h"
 #include "ppm_loader.h"
-#include "mzapo_peri.h"
+#include "font_types.h"
 
-#define MAX_SCORES 100
-#define SCORE_LINE_LENGTH 64
-#define SCORES_FILE "/tmp/veru/scores.txt"
+#define SCORES_FILE "/tmp/veru/resources/scores.txt"
+#define MAX_SCORES 20
+#define SCORE_LINE_LENGTH 50
 
 typedef struct {
     char lines[MAX_SCORES][SCORE_LINE_LENGTH];
@@ -22,8 +22,8 @@ typedef struct {
 void init_scoreboard(scoreboard_t *sb);
 int load_scores(scoreboard_t *sb);
 int save_score(const char *name, int score);
-void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, font_descriptor_t *font);
+void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *font);
 void scroll_scoreboard(scoreboard_t *sb, int direction);
-int handle_scoreboard_input(scoreboard_t *sb, int direction);
+int handle_scoreboard_input(scoreboard_t *sb);
 
 #endif

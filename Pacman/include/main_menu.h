@@ -20,7 +20,7 @@
 
 #define DEBOUNCE_DELAY_MS 50
 #define INPUT_POLL_DELAY_US 10000  // 10ms
-#define SCROLL_DELAY INPUT_POLL_DELAY_US * 80
+#define SCROLL_DELAY INPUT_POLL_DELAY_US * 100
 
 #define MENU_ITEMS 3
 extern const char *menu_items[MENU_ITEMS];

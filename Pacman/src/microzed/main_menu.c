@@ -34,17 +34,17 @@ int handle_menu_input(menu_state_t *menu) {
     int8_t delta = (int8_t)(current_knob - menu->last_knob_pos);
 
     // Handle knob rotation
-    if (abs(delta) > 1) {  // Add some threshold to prevent noise
-        if (delta > 1) {
+    if (abs(delta) > 2) {
+        if (delta > 2) {
             menu->selected = (menu->selected - 1 + MENU_ITEMS) % MENU_ITEMS;
-        } else if (delta < -1) {
+        } else if (delta < -2) {
             menu->selected = (menu->selected + 1) % MENU_ITEMS;
         }
         menu->last_knob_pos = current_knob;
         return 1;  // Redraw needed
     }
 
-    // Handle knob press with debouncing
+    // Handle knob press
     if (red_knob_is_pressed()) {
         if (current_time - last_press_time > DEBOUNCE_DELAY_MS) {
             last_press_time = current_time;
@@ -52,7 +52,7 @@ int handle_menu_input(menu_state_t *menu) {
         }
     }
 
-    return 0;  // No action needed
+    return 0;
 }
 
 
