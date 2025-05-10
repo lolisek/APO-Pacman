@@ -1,28 +1,42 @@
 #include "../../include/entities/entity.h"
+#include "../../include/core/game_state.h"
 #include <stdio.h>
 
-void entity_init(Entity *entity, EntityType type, Vector2D position, Vector2D direction, int speed)
+void entity_init(Entity *entity, EntityType type, void (*update)(void *specific, GameState *gamestate), void (*render)(void *specific))
 {
-    entity->position = position;
-    entity->direction = direction;
-    entity->speed = speed;
     entity->type = type;
-    entity->update = NULL; // To be set by derived types
-    entity->render = NULL; // To be set by derived types
+    entity->update = update;
+    entity->render = render;
 }
 
-void entity_update(Entity *entity)
+void entity_update(Entity *entity, GameState *gamestate)
 {
     if (entity->update)
     {
-        entity->update(entity);
+        switch (entity->type)
+        {
+        case ENTITY_TYPE_PACMAN:
+            entity->update(entity, gamestate);
+            break;
+        case ENTITY_TYPE_GHOST:
+            entity->update(entity, gamestate);
+            break;
+        }
     }
 }
 
-void entity_render(const Entity *entity)
+void entity_render(Entity *entity)
 {
     if (entity->render)
     {
-        entity->render(entity);
+        switch (entity->type)
+        {
+        case ENTITY_TYPE_PACMAN:
+            entity->render(entity);
+            break;
+        case ENTITY_TYPE_GHOST:
+            entity->render(entity);
+            break;
+        }
     }
 }

@@ -4,7 +4,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-void handle_input(GameState *gamestate, int *running)
+void handle_input(GameState *gamestate, bool *running)
 {
     // TODO implement input handling for microzed
     // Random pacman movement for testing
@@ -13,27 +13,27 @@ void handle_input(GameState *gamestate, int *running)
     switch (random_direction)
     {
     case 0:
-        gamestate->pacman.base.direction.x = 0;
-        gamestate->pacman.base.direction.y = -1; // Move up
+        gamestate->pacman.direction.x = 0;
+        gamestate->pacman.direction.y = -1; // Move up
         break;
     case 1:
 
-        gamestate->pacman.base.direction.x = 0;
-        gamestate->pacman.base.direction.y = 1; // Move down
+        gamestate->pacman.direction.x = 0;
+        gamestate->pacman.direction.y = 1; // Move down
         break;
     case 2:
 
-        gamestate->pacman.base.direction.x = -1; // Move left
-        gamestate->pacman.base.direction.y = 0;
+        gamestate->pacman.direction.x = -1; // Move left
+        gamestate->pacman.direction.y = 0;
         break;
     case 3:
-        gamestate->pacman.base.direction.x = 1; // Move right
-        gamestate->pacman.base.direction.y = 0;
+        gamestate->pacman.direction.x = 1; // Move right
+        gamestate->pacman.direction.y = 0;
         break;
 
     default:
-        gamestate->pacman.base.direction.x = 0;
-        gamestate->pacman.base.direction.y = 0; // No movement
+        gamestate->pacman.direction.x = 0;
+        gamestate->pacman.direction.y = 0; // No movement
         break;
     }
 }

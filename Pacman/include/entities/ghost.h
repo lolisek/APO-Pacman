@@ -1,7 +1,11 @@
 #ifndef APO_PACMAN_GHOST_H
 #define APO_PACMAN_GHOST_H
 
-#include "./entity.h"
+#include "../utils/vector2d.h"
+
+struct GameState;
+
+struct Entity;
 
 // Ghost behavior modes
 typedef enum
@@ -23,15 +27,14 @@ typedef enum
 // Ghost-specific structure
 typedef struct
 {
-    Entity base;          // Base entity structure
     GhostMode mode;       // Current behavior mode
     GhostType type;       // Type of ghost (Blinky, Pinky, Inky, Clyde)
     int frightened_timer; // Timer for frightened mode
 } Ghost;
 
 // Function prototypes
-void ghost_init(Ghost *ghost, Vector2D position);
-void ghost_update(Entity *entity);       // Override for update
-void ghost_render(const Entity *entity); // Override for render
+void ghost_init(struct Entity *entity, Vector2D position, GhostType type); // Initialize ghost
+void ghost_update(void *specific, struct GameState *gamestate);            // Override for update
+void ghost_render(void *specific);                                         // Override for render
 
 #endif // APO_PACMAN_GHOST_H

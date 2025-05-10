@@ -1,31 +1,84 @@
 #include "../../include/entities/ghost.h"
+#include "../../include/entities/entity.h"
+#include "../../include/utils/logger.h"
+#include "../../include/utils/constants.h"
+#include "../../include/core/game_state.h"
+#include <stdlib.h>
 #include <stdio.h>
 
-void ghost_init(Ghost *ghost, Vector2D position)
+void ghost_init(Entity *entity, Vector2D position, GhostType type)
 {
-    entity_init(&ghost->base, ENTITY_TYPE_GHOST, position, (Vector2D){0, 0}, 1);
+    LOG_INFO("Initializing Ghost...");
+    Ghost *ghost = &entity->specific.ghost; // Correctly access the Ghost object
     ghost->mode = GHOST_MODE_SCATTER;
+    ghost->type = type;
     ghost->frightened_timer = 0;
-    ghost->base.update = ghost_update;
-    ghost->base.render = ghost_render;
 
-    // TODO implement ghost-types (blinky, pinky, inky, clyde)
+    entity_init(entity, ENTITY_TYPE_GHOST, ghost_update, ghost_render);
+    entity->position = position;
+    entity->direction = (Vector2D){0, 0};
+    entity->speed = GHOST_SPEED;
+
+    LOG_DEBUG("Ghost initialized at position (%d, %d) with type %d", position.x, position.y, type);
 }
 
-void ghost_update(Entity *entity)
+void ghost_update(void *specific, struct GameState *passed_gamestate)
 {
-    Ghost *ghost = (Ghost *)entity;
-    // Update ghost's position based on direction and speed
-    ghost->base.position.x += ghost->base.direction.x * ghost->base.speed;
-    ghost->base.position.y += ghost->base.direction.y * ghost->base.speed;
-    printf("Ghost updated: (%d, %d)\n", ghost->base.position.x, ghost->base.position.y);
-    // TODO Implement ghost behavior based on mode
+    Entity *entity = (Entity *)specific;
+    GameState *game_state = (GameState *)passed_gamestate;
+
+    // Access the embedded Ghost structure directly
+    // Ghost *ghost = &entity->specific.ghost;
+
+    LOG_DEBUG("Updating Ghost...");
+    LOG_DEBUG("Current position: (%d, %d)", entity->position.x, entity->position.y);
+    LOG_DEBUG("Current direction: (%d, %d)", entity->direction.x, entity->direction.y);
+    LOG_DEBUG("Current speed: %d", entity->speed);
+    LOG_DEBUG("Current mode: %d", ghost->mode);
+
+    // Calculate the next position based on the ghost type/mode
+    // For simplicity, we'll just move in random directions for now
+
+    entity->direction.x = (rand() % 3) - 1; // Random direction (-1, 0, 1)
+    entity->direction.y = (rand() % 3) - 1; // Random direction (-1, 0, 1)
+    if (entity->direction.x == 0 && entity->direction.y == 0)
+    {
+        entity->direction.x = 1; // Default to moving right if no direction is set
+    }
+    LOG_DEBUG("New direction: (%d, %d)", entity->direction.x, entity->direction.y);
+
+    // Predict Ghost's next position
+    Vector2D next_position = {
+        entity->position.x + entity->direction.x * entity->speed,
+        entity->position.y + entity->direction.y * entity->speed};
+
+    // Check if the next position is walkable
+    if (map_is_walkable(&game_state->map, next_position.x, next_position.y))
+    {
+        // Update Ghost's position
+        entity->position = next_position;
+    }
+    else
+    {
+        LOG_DEBUG("Ghost's move blocked by a wall.");
+        // TODO: Implement logic for changing direction when blocked
+    }
+
+    LOG_INFO("Ghost update complete.");
 }
 
-void ghost_render(const Entity *entity)
+void ghost_render(void *specific)
 {
-    const Ghost *ghost = (const Ghost *)entity;
+    Entity *entity = (Entity *)specific;
+    Ghost *ghost = &entity->specific.ghost; // Correctly access the Ghost object
 
-    printf("Rendering Ghost at (%d, %d)\n", ghost->base.position.x, ghost->base.position.y);
-    // TODO Render ghost based on its current mode
+    LOG_DEBUG("Rendering Ghost...");
+    LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
+    LOG_DEBUG("Ghost mode: %d", ghost->mode);
+
+    // Render Ghost (e.g., draw the sprite on the screen)
+    printf("Rendering Ghost at (%d, %d) in mode %d\n",
+           entity->position.x, entity->position.y, ghost->mode);
+
+    LOG_INFO("Ghost rendered.");
 }
