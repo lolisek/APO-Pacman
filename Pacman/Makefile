@@ -39,13 +39,12 @@ LDLIBS += -lrt -lpthread -lm
 
 # -----STEP 2.-----
 # Source files
-SOURCES = $(wildcard $(SRC_DIR)/*.c) \
-		  $(wildcard $(MICROZED_DIR)/*.c) \
-		  $(wildcard $(FONTS_DIR)/*.c) \
-		  $(wildcard $(CORE_DIR)/*.c) \
-		  $(wildcard $(ENTITIES_DIR)/*.c) \
-		  $(wildcard $(MAP_DIR)/*.c) \
-		  $(wildcard $(UTILS_DIR)/*.c)
+SOURCES = $(SRC_DIR)/main.c \
+          $(MICROZED_DIR)/mzapo_phys.c \
+          $(MICROZED_DIR)/mzapo_parlcd.c \
+          $(MICROZED_DIR)/serialize_lock.c \
+          $(FONTS_DIR)/font_prop14x16.c \
+          $(FONTS_DIR)/font_rom8x16.c
 
 # Target executable
 TARGET_EXE = pacman_mzapo
@@ -54,7 +53,7 @@ ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
 $(warning Run as "TARGET_IP=192.168.202.xxx make run" or modify Makefile)
-TARGET_IP ?= 192.168.202.xxx
+TARGET_IP ?= 192.168.0.25
 endif
 endif
 TARGET_DIR ?= /tmp/$(shell whoami)
