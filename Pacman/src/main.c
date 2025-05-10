@@ -21,19 +21,7 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "../include/microzed/mzapo_regs.h"
-#include "../include/microzed/mzapo_phys.h"
-#include "../include/microzed/mzapo_regs.h"
-#include "../include/microzed/serialize_lock.h"
-
 #include "../include/core/game.h"
-
-#include "../include/core/game_state.h"
-#include "../include/core/renderer.h"
-#include "../include/core/input.h"
-#include "../include/utils/timer.h"
-#include "../include/map/map.h"
-#include "../include/utils/constants.h"
 
 int main(int argc, char *argv[])
 {
