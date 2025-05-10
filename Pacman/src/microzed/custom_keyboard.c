@@ -32,17 +32,17 @@ void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
         highlight_key(fb, position);
 
         int action = handle_red_knob();
-        if (action == 1) {
+        if (action == 1) { // Scroll right
             position = (position + 1) % 27;
             highlight_key(fb, position);
             draw_string(fb, 135, 47, name, 0xFFFF, font);
             lcd_update(fb);
-        } else if (action == 2) {
+        } else if (action == 2) { // Scroll left
             position = (position - 1 + 27) % 27;
             highlight_key(fb, position);
             draw_string(fb, 135, 47, name, 0xFFFF, font);
             lcd_update(fb);
-        } else if (action == 3) {
+        } else if (action == 3) { // Return selection
             if (chars_written < 20) {
                 name[chars_written++] = alphabet[position][0];
                 name[chars_written] = '\0';
@@ -57,9 +57,10 @@ void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
         }
 
         action = handle_green_knob();
-        if (action == 1) {
-        } else if (action == 2) { // Scroll left
-        } else if (action == 3) {
+        if (action == 1) { // Scroll up
+        
+        } else if (action == 2) { // Scroll down
+        } else if (action == 3) { 
             if (chars_written > 0) {
                 name[--chars_written] = '\0';
                 draw_string(fb, 135, 47, name, 0xFFFF, font);
