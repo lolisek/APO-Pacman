@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
         if (menu.selected == 0) {
             // Start game
             printf("Starting game...\n");
+            run_game_loop();
             handle_keyboard_input(menu.framebuffer, &font_winFreeSystem14x16);
             
         } else if (menu.selected == 1) {
