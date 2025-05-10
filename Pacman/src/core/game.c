@@ -2,6 +2,7 @@
 #include "../include/core/renderer.h"
 #include "../include/utils/timer.h"
 #include "../include/core/input.h"
+#include "../include/utils/logger.h"
 #include <stdio.h>
 
 void run_game_loop()
@@ -10,9 +11,8 @@ void run_game_loop()
     init_game_state(&game_state);
 
     // Main game loop
-
     Timer frame_timer;
-    int running = 1;
+    bool running = true;
 
     while (running)
     {
@@ -35,86 +35,70 @@ void run_game_loop()
             timer_sleep_ms(16 - elapsed_ms);
         }
     }
+
+    cleanup_game(&game_state);
 }
 
 void update_game_state(GameState *game_state)
 {
-    // Update game state logic here
-    // For example, update Pacman and ghost positions, check for collisions, etc.
-    entity_update((Entity *)&game_state->pacman);
+    // Update Pac-Man
+    entity_update(&game_state->pacman, game_state);
 
-    // entity_update((Entity *)&game_state->ghosts[0]);
+    // Update ghosts
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
+        entity_update(&game_state->ghosts[i], game_state);
+    }
 
-    // handle collisions with pellets, ghosts, etc.
-
+    // Check for collisions between Pac-Man and ghosts
     check_collisions(game_state);
 
-    printf("Pacman position: (%d, %d)\n", game_state->pacman.base.position.x, game_state->pacman.base.position.y);
+    // Debug: Print Pac-Man's position
+    printf("Pac-Man position: (%d, %d)\n", game_state->pacman.position.x, game_state->pacman.position.y);
 }
 
 void check_collisions(GameState *game_state)
 {
-    // Check for collisions between Pacman and walls
-    if (!map_is_walkable(&game_state->map, game_state->pacman.base.position.x, game_state->pacman.base.position.y))
+    // Check for collisions between Pac-Man and ghosts
+    for (int i = 0; i < NUM_GHOSTS; i++)
     {
-        // Handle collision with wall
-        // Reset Pacman's position or prevent movement
-        game_state->pacman.base.position.x -= game_state->pacman.base.direction.x * game_state->pacman.base.speed;
-        game_state->pacman.base.position.y -= game_state->pacman.base.direction.y * game_state->pacman.base.speed;
+        if (game_state->ghosts[i].position.x == game_state->pacman.position.x &&
+            game_state->ghosts[i].position.y == game_state->pacman.position.y)
+        {
+            // Handle collision with ghost
+            Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+            if (ghost->mode == GHOST_MODE_FRIGHTENED)
+            {
+                // Ghost is frightened, Pac-Man eats the ghost
+                game_state->score += 200;       // Increase score
+                ghost->mode = GHOST_MODE_EATEN; // Change ghost mode to eaten
+                LOG_INFO("Pac-Man ate a ghost! Score: %d", game_state->score);
+            }
+            else
+            {
+                // Pac-Man loses a life
+                game_state->lives--;
+                LOG_INFO("Pac-Man hit by a ghost! Lives remaining: %d", game_state->lives);
+                if (game_state->lives <= 0)
+                {
+                    game_state->game_over = true; // Game over
+                    LOG_INFO("Game Over!");
+                }
+
+                // Reset Pac-Man's position
+                game_state->pacman.position.x = PACMAN_START_X;
+                game_state->pacman.position.y = PACMAN_START_Y;
+
+                // Reset ghost positions
+                for (int j = 0; j < NUM_GHOSTS; j++)
+                {
+                    game_state->ghosts[j].position.x = GHOST_START_X + j;
+                    game_state->ghosts[j].position.y = GHOST_START_Y;
+                }
+
+                // Reset frightened timer
+                game_state->frightened_timer = 0;
+            }
+        }
     }
-
-    // // Check for collisions between Pacman and ghosts
-    // for (int i = 0; i < NUM_GHOSTS; i++)
-    // {
-    //     if (game_state->ghosts[i].base.position.x == game_state->pacman.base.position.x &&
-    //         game_state->ghosts[i].base.position.y == game_state->pacman.base.position.y)
-    //     {
-    //         // Handle collision with ghost
-    //         if (game_state->ghosts[i].mode == GHOST_MODE_FRIGHTENED)
-    //         {
-    //             // Ghost is frightened, Pacman eats the ghost
-    //             game_state->score += 200; // Increase score
-    //             game_state->ghosts[i].mode = GHOST_MODE_EATEN; // Change ghost mode to eaten
-    //         }
-    //         else
-    //         {
-    //             // Pacman loses a life
-    //             game_state->lives--;
-    //             if (game_state->lives <= 0)
-    //             {
-    //                 game_state->game_over = true; // Game over
-    //             }
-    //         }
-
-    //         // Reset Pacman's position
-    //         game_state->pacman.base.position.x = PACMAN_START_X;
-    //         game_state->pacman.base.position.y = PACMAN_START_Y;
-    //         // Reset ghost positions
-    //         for (int j = 0; j < NUM_GHOSTS; j++)
-    //         {
-    //             game_state->ghosts[j].base.position.x = GHOST_START_X;
-    //             game_state->ghosts[j].base.position.y = GHOST_START_Y;
-    //         }
-
-    //         // Reset frightened timer
-    //         game_state->frightened_timer = 0;
-
-    //     }
-    // }
-    // // Check for collisions with pellets
-    // for (int y = 0; y < game_state->map.height; y++)
-    // {
-    //     for (int x = 0; x < game_state->map.width; x++)
-    //     {
-    //         if (game_state->map.tiles[y][x].type == TILE_PELLET)
-    //         {
-    //             if (game_state->pacman.base.position.x == x && game_state->pacman.base.position.y == y)
-    //             {
-    //                 // Pacman eats the pellet
-    //                 game_state->score += 10; // Increase score
-    //                 game_state->map.tiles[y][x].type = TILE_EMPTY; // Remove the pellet from the map
-    //             }
-    //         }
-    //     }
-    // }
 }
