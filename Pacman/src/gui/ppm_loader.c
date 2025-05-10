@@ -1,4 +1,4 @@
-#include "ppm_loader.h"
+#include "../../include/gui/ppm_loader.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

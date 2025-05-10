@@ -1,4 +1,4 @@
-#include "mzapo_peri.h"
+#include "../../include/gui/mzapo_peri.h"
 
 static void *mzapo_spiled = NULL;
 static void *mzapo_parlcd = NULL;

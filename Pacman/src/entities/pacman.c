@@ -27,7 +27,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     GameState *game_state = (GameState *)passed_gamestate;
 
     // Access the embedded Pacman structure directly
-    Pacman *pacman = &entity->specific.pacman;
+    // Pacman *pacman = &entity->specific.pacman;
 
     LOG_DEBUG("Updating Pac-Man...");
     LOG_DEBUG("Current position: (%d, %d)", entity->position.x, entity->position.y);
@@ -70,10 +70,10 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
 
 void pacman_render(void *specific)
 {
-    Entity *entity = (Entity *)specific;
+    // Entity *entity = (Entity *)specific;
 
     // Access the embedded Pacman structure directly
-    Pacman *pacman = &entity->specific.pacman;
+    // Pacman *pacman = &entity->specific.pacman;
 
     LOG_DEBUG("Rendering Pac-Man...");
     LOG_DEBUG("Pac-Man position: (%d, %d)", entity->position.x, entity->position.y);

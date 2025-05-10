@@ -1,6 +1,4 @@
-#include "display_scoreboard.h"
-
-#include "display_scoreboard.h"
+#include "../../include/gui/display_scoreboard.h"
 
 void init_scoreboard(scoreboard_t *sb) {
     sb->total_lines = 0;

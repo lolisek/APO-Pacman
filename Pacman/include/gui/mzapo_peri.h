@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "mzapo_regs.h"
-#include "mzapo_phys.h"
+#include "../microzed/mzapo_regs.h"
+#include "../microzed/mzapo_phys.h"
 #include <stdlib.h>
 
 #define KNOB_CLICK_DELAY_MS 100000

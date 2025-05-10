@@ -1,4 +1,4 @@
-#include "custom_keyboard.h"
+#include "../../include/gui/custom_keyboard.h"
 
 void draw_keyboard(uint16_t *fb) {
     ppm_image_t *keyboard_bgr = load_ppm("/tmp/veru/resources/keyboardbgr.ppm");

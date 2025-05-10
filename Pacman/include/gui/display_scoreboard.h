@@ -3,11 +3,13 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "mzapo_parlcd.h"
-#include "mzapo_phys.h"
-#include "mzapo_regs.h"
+#include "../microzed/mzapo_parlcd.h"
+#include "../microzed/mzapo_phys.h"
+#include "../microzed/mzapo_regs.h"
+
+#include "../fonts/font_types.h"
+
 #include "ppm_loader.h"
-#include "font_types.h"
 #include "mzapo_peri.h"
 #include "draw_text.h"
 

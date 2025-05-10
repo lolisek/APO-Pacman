@@ -8,12 +8,10 @@
 #include <unistd.h>
 #include <time.h>
 
-#include "mzapo_parlcd.h"
-#include "mzapo_phys.h"
-#include "mzapo_regs.h"
+
 #include "ppm_loader.h"
 #include "mzapo_peri.h"
-#include "font_types.h"
+#include "../fonts/font_types.h"
 #include "draw_text.h"
 #include "display_scoreboard.h"
 

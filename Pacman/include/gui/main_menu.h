@@ -7,11 +7,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "ppm_loader.h"
-#include "mzapo_peri.h"
-#include "mzapo_regs.h"
-#include "mzapo_phys.h"
-#include "mzapo_parlcd.h"
+#include "../gui/ppm_loader.h"
+#include "../gui/mzapo_peri.h"
+#include "../microzed/mzapo_regs.h"
+#include "../microzed/mzapo_phys.h"
+#include "../microzed/mzapo_parlcd.h"
 
 #define ARROW_SIZE 24
 #define ARROW_SHAFT_WIDTH 6

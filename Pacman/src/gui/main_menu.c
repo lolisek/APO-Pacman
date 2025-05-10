@@ -1,4 +1,4 @@
-#include "main_menu.h"
+#include "../../include/gui/main_menu.h"
 
 const char *menu_items[MENU_ITEMS] = {
     "Play",

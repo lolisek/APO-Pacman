@@ -1,4 +1,4 @@
-#include "draw_text.h"
+#include "../../include/gui/draw_text.h"
 
 void draw_pixel(uint16_t *fb, int x, int y, uint16_t color) {
     if (x < 0 || x >= LCD_WIDTH || y < 0 || y >= LCD_HEIGHT) {
