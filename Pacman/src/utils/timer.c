@@ -1,6 +1,7 @@
-#include <i386-linux-gnu/bits/time.h>
+//#include <i386-linux-gnu/bits/time.h>
 #include "../../include/utils/timer.h"
 #include <time.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 // Start the timer

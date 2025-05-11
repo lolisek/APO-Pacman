@@ -58,8 +58,35 @@ void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
 
         action = handle_green_knob();
         if (action == 1) { // Scroll up
-        
+            if (position < 8) {
+                continue;
+            } else if (position < 24) {
+                position -= 8;
+            } else if (position == 24) {
+                position = 17;
+            } else if (position == 25) {
+                position = 18;
+            } else if (position == 26) {
+                position = 19;
+            }
+            highlight_key(fb, position);
+            draw_string(fb, 135, 47, name, 0xFFFF, font);
+            lcd_update(fb);
         } else if (action == 2) { // Scroll down
+            if (position == 17) {
+                position = 24;
+            } else if (position == 18) {
+                position = 25;
+            } else if (position == 19 || position == 20 || position == 21 || position == 22) {
+                position = 26;
+            } else if (position > 15) {
+                continue;
+            } else {
+                position += 8;
+            }
+            highlight_key(fb, position);
+            draw_string(fb, 135, 47, name, 0xFFFF, font);
+            lcd_update(fb);
         } else if (action == 3) { 
             if (chars_written > 0) {
                 name[--chars_written] = '\0';
@@ -69,7 +96,7 @@ void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
             usleep(KNOB_CLICK_DELAY_MS);
         }
 
-        usleep(KNOB_ROTATION_DELAY_MS);
+        usleep(KNOB_ROTATION_DELAY_MS * 1.25);
     }
 
 
