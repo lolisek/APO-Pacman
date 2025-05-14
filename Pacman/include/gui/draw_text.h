@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #include "ppm_loader.h"
-#include "mzapo_peri.h"
+#include "../microzed/mzapo_peri.h"
 #include "../microzed/mzapo_regs.h"
 #include "../microzed/mzapo_phys.h"
 #include "../fonts/font_types.h"

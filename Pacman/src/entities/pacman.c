@@ -56,7 +56,6 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
             {
                 game_state->score += 10;                                 // Increase score
                 game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the pellet from the map
-                LOG_INFO("Pac-Man ate a pellet! Score: %d", game_state->score);
             }
         }
     }
@@ -65,7 +64,6 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
         LOG_DEBUG("Pac-Man's move blocked by a wall.");
     }
 
-    LOG_INFO("Pac-Man update complete.");
 }
 
 void pacman_render(void *specific)
@@ -80,5 +78,4 @@ void pacman_render(void *specific)
     LOG_DEBUG("Pac-Man lives: %d", pacman->lives);
     LOG_DEBUG("Pac-Man score: %d", pacman->score);
 
-    LOG_INFO("Pac-Man rendered.");
 }

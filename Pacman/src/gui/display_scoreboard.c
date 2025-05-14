@@ -48,7 +48,7 @@ int save_score(const char *name, int score) {
 void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *font) {
     if (!sb || !fb || !font) return;
 
-    ppm_image_t *bgr = load_ppm("/tmp/veru/resources/scoreboardbgr.ppm");
+    ppm_image_t *bgr = load_ppm("/tmp/veru/assets/resources/scoreboardbgr.ppm");
     if (bgr) {
         memcpy(fb, bgr->pixels, LCD_SIZE * sizeof(uint16_t));
         free_ppm(bgr);

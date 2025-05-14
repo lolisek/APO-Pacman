@@ -11,7 +11,7 @@
 #define NUM_TILES_X 23
 #define NUM_TILES_Y 25
 
-#define TILE_SIZE 16
+#define TILE_SIZE 13
 
 #define NUM_GHOSTS 4
 #define NUM_PELLETS 240

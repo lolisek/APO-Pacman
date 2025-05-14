@@ -6,11 +6,11 @@
 #include "../microzed/mzapo_parlcd.h"
 #include "../microzed/mzapo_phys.h"
 #include "../microzed/mzapo_regs.h"
+#include "../microzed/mzapo_peri.h"
 
 #include "../fonts/font_types.h"
 
 #include "ppm_loader.h"
-#include "mzapo_peri.h"
 #include "draw_text.h"
 
 #define SCORES_FILE "/tmp/veru/resources/scores.txt"

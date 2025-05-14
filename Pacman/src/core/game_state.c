@@ -24,15 +24,14 @@ void init_game_state(GameState *game_state)
 
     // Initialize the map
     map_init(&game_state->map);
-    if (!map_load_from_file(&game_state->map, "./assets/maps/level1.txt"))
+    if (!map_load_from_file(&game_state->map, "/tmp/veru/assets/maps/level1.txt"))
     {
-        LOG_ERROR("Failed to load map from file: ./assets/maps/level1.txt");
+        LOG_ERROR("Failed to load map from file: /assets/maps/level1.txt");
         game_state->game_over = true;
         return;
     }
 
     game_state->game_over = false;
-    LOG_INFO("Game state initialized successfully.");
 }
 
 void reset_level(GameState *game_state)

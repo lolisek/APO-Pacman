@@ -1,7 +1,9 @@
 #include "../../include/gui/custom_keyboard.h"
 
+// TO DO: Add aggregation of the knob functions
+
 void draw_keyboard(uint16_t *fb) {
-    ppm_image_t *keyboard_bgr = load_ppm("/tmp/veru/resources/keyboardbgr.ppm");
+    ppm_image_t *keyboard_bgr = load_ppm("/tmp/veru/assets/resources/keyboardbgr.ppm");
     if (!keyboard_bgr) {
         fprintf(stderr, "Failed to load keyboard background image\n");
         return;
@@ -157,13 +159,13 @@ void highlight_key(uint16_t *fb, int key_index) {
         return;
     }
 
-    ppm_image_t *key_highlight = load_ppm("/tmp/veru/resources/key_highlight.ppm");
+    ppm_image_t *key_highlight = load_ppm("/tmp/veru/assets/resources/key_highlight.ppm");
     if (!key_highlight) {
         fprintf(stderr, "Failed to load key highlight image\n");
         return;
     }
 
-    ppm_image_t *space_highlight = load_ppm("/tmp/veru/resources/space_highlight.ppm");
+    ppm_image_t *space_highlight = load_ppm("/tmp/veru/assets/resources/space_highlight.ppm");
     if (!space_highlight) {
         fprintf(stderr, "Failed to load space highlight image\n");
         free_ppm(key_highlight);

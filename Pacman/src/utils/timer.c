@@ -1,4 +1,5 @@
 //#include <i386-linux-gnu/bits/time.h>
+#define _POSIX_C_SOURCE 199309L
 #include "../../include/utils/timer.h"
 #include <time.h>
 #include <sys/time.h>

@@ -10,6 +10,11 @@
 #define KNOB_CLICK_DELAY_MS 100000
 #define KNOB_ROTATION_DELAY_MS 100000
 
+
+#define KNOB_CLICKS_PER_TURN 4
+#define KNOB_POSITIONS 256
+#define KNOB_CLICK_SIZE (KNOB_POSITIONS/KNOB_CLICKS_PER_TURN)
+
 void mzapo_setup(void);
 
 void *get_mzapo_spiled(void);

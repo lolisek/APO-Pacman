@@ -10,7 +10,7 @@
 
 
 #include "ppm_loader.h"
-#include "mzapo_peri.h"
+#include "../microzed/mzapo_peri.h"
 #include "../fonts/font_types.h"
 #include "draw_text.h"
 #include "display_scoreboard.h"

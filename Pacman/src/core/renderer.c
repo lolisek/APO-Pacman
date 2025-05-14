@@ -8,8 +8,13 @@ void render(GameState *game_state)
 {
 
     // render in console for testing
-
-    printf("\033[H\033[J"); // Clear the console (ANSI escape code)
+    //while (condition)
+    //{
+        // frame buffer
+        // lcd update
+    //}
+    
+    
     printf("Score: %d\n", game_state->score);
 
     for (int y = 0; y < game_state->map.height; y++)

@@ -8,7 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include "../gui/ppm_loader.h"
-#include "../gui/mzapo_peri.h"
+#include "../microzed/mzapo_peri.h"
 #include "../microzed/mzapo_regs.h"
 #include "../microzed/mzapo_phys.h"
 #include "../microzed/mzapo_parlcd.h"
@@ -29,6 +29,7 @@ typedef struct {
     int selected;
     uint8_t last_knob_pos;
     uint8_t last_selected;
+    uint8_t knob_accumulator;  // For tracking partial clicks
     uint16_t framebuffer[LCD_SIZE];
 } menu_state_t;
 

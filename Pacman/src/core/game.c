@@ -4,9 +4,13 @@
 #include "../include/core/input.h"
 #include "../include/utils/logger.h"
 #include <stdio.h>
+#include <unistd.h>
 
-void run_game_loop()
+
+
+void run_game_loop(uint16_t *frame_buffer)
 {
+
     GameState game_state;
     init_game_state(&game_state);
 
@@ -26,6 +30,8 @@ void run_game_loop()
 
         // Render the game
         render(&game_state);
+
+        sleep(1);
 
         // Control frame rate (e.g., 60 FPS)
         timer_stop(&frame_timer);

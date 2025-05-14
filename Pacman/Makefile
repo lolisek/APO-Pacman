@@ -4,6 +4,12 @@
 # 3. Add the new source file to the appropriate build rule in this Makefile
 # 4. Run 'make' to compile the project (make clean for a clean build)
 
+# READ BEFORE RUNNING
+# TO CONNECT THROUGHT EDUROAM UNCOMMENT THE LINES 68 - ...
+# RUN CODE make copy-assets TARGET_IP=192.168.XXX.XXX
+# RUN CODE make run TARGET_IP=192.168.XXX.XXX
+
+
 
 CC = arm-linux-gnueabihf-gcc
 CXX = arm-linux-gnueabihf-g++
@@ -51,22 +57,26 @@ SOURCES = $(wildcard $(SRC_DIR)/*.c) \
 
 # Target executable
 TARGET_EXE = pacman_mzapo
-#TARGET_IP ?= 192.168.202.127
+TARGET_IP ?= 192.168.202.127
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
 $(warning Run as "TARGET_IP=192.168.202.xxx make run" or modify Makefile)
-TARGET_IP ?= 192.168.0.25
+#TARGET_IP ?= 192.168.0.25
 endif
 endif
 TARGET_DIR ?= /tmp/$(shell whoami)
 TARGET_USER ?= root
+
+#---- UNCOMMENT TO USE WITH EDUROAM ----_
+
 # for use from Eduroam network use TARGET_IP=localhost and enable next line
 #SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222"
 #SSH_GDB_TUNNEL_REQUIRED=y
-#SSH_OPTIONS=-i /opt/zynq/ssh-connect/mzapo-root-key
-#SSH_OPTIONS=-o 'ProxyJump=ctu_login@postel.felk.cvut.cz'
+#SSH_OPTIONS=-i ~/.ssh/mzapo-root-key
+#SSH_OPTIONS=-o 'ProxyJump=ohrazver@postel.felk.cvut.cz'
 
+# ---------------------------------------
 
 # Object files (placed in the build directory)
 OBJECTS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SOURCES)))
@@ -155,9 +165,17 @@ copy-executable: $(TARGET_EXE)
 	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) mkdir -p $(TARGET_DIR)
 	scp $(SSH_OPTIONS) $(TARGET_EXE) $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/$(TARGET_EXE)
 
+
+
+copy-assets:
+	@echo "Copying assets to target..."
+	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/assets/resources"
+	scp $(SSH_OPTIONS) assets/resources/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/assets/resources/
+
 # Run the executable on the target device
-run: copy-executable $(TARGET_EXE)
-	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) $(TARGET_DIR)/$(TARGET_EXE)
+run: copy-executable copy-assets
+	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) "cd $(TARGET_DIR) && ./$(TARGET_EXE)"
+
 
 # Debugging setup
 ifneq ($(filter -o ProxyJump=,$(SSH_OPTIONS))$(SSH_GDB_TUNNEL_REQUIRED),)

@@ -14,7 +14,7 @@ void init_menu(menu_state_t *menu) {
 }
 
 void draw_menu(menu_state_t *menu) {
-    ppm_image_t *menu_bgr = load_ppm("/tmp/veru/resources/menu.ppm");
+    ppm_image_t *menu_bgr = load_ppm("/tmp/veru/assets/resources/menu.ppm");
     if (!menu_bgr) {
         fprintf(stderr, "Failed to load menu image\n");
         return;
@@ -29,18 +29,16 @@ void draw_menu(menu_state_t *menu) {
 int handle_menu_input(menu_state_t *menu) {
     static uint32_t last_press_time = 0;
     uint32_t current_time = clock() * 1000;
-    
-    uint8_t current_knob = get_red_knob_rotation();
-    int8_t delta = (int8_t)(current_knob - menu->last_knob_pos);
 
     // Handle knob rotation
-    if (abs(delta) > 2) {
-        if (delta > 2) {
-            menu->selected = (menu->selected - 1 + MENU_ITEMS) % MENU_ITEMS;
-        } else if (delta < -2) {
-            menu->selected = (menu->selected + 1) % MENU_ITEMS;
-        }
-        menu->last_knob_pos = current_knob;
+    int change = handle_knob_rotation(menu->last_knob_pos);
+    
+    if (change != 0) {
+        int new_position = menu->selected - change;
+        new_position = (new_position % MENU_ITEMS + MENU_ITEMS) % MENU_ITEMS;
+        
+        menu->selected = new_position;
+        menu->last_knob_pos = get_red_knob_rotation();
         return 1;  // Redraw needed
     }
 
@@ -55,10 +53,32 @@ int handle_menu_input(menu_state_t *menu) {
     return 0;
 }
 
+int handle_knob_rotation(int last_pos) {
+    uint8_t current_knob = get_red_knob_rotation();
+    int delta = (int)(current_knob - last_pos);
+
+    // Handle wrap-around
+    if (delta > 127) delta -= 256;
+    if (delta < -127) delta += 256;
+
+    if (abs(delta) > 3) {
+        // Calculate clicks, rounding toward zero
+        int clicks = delta / (KNOB_POSITIONS/KNOB_CLICKS_PER_TURN);
+        
+        // For small movements, just return ±1
+        if (abs(clicks) == 0) {
+            return (delta > 0) ? 1 : -1;
+        }
+        return clicks;
+    }
+
+    return 0;
+}
+
 
   void render_arrows(int selected, uint16_t *fb) {
-    ppm_image_t *arrow_left = load_ppm("/tmp/veru/resources/arrow_left.ppm");
-    ppm_image_t *arrow_right = load_ppm("/tmp/veru/resources/arrow_right.ppm");
+    ppm_image_t *arrow_left = load_ppm("/tmp/veru/assets/resources/arrow_left.ppm");
+    ppm_image_t *arrow_right = load_ppm("/tmp/veru/assets/resources/arrow_right.ppm");
     if (!arrow_left || !arrow_right) {
         fprintf(stderr, "Failed to load arrow images\n");
         return;

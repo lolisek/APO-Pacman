@@ -64,7 +64,6 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
         // TODO: Implement logic for changing direction when blocked
     }
 
-    LOG_INFO("Ghost update complete.");
 }
 
 void ghost_render(void *specific)
@@ -76,9 +75,5 @@ void ghost_render(void *specific)
     LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
     LOG_DEBUG("Ghost mode: %d", ghost->mode);
 
-    // Render Ghost (e.g., draw the sprite on the screen)
-    printf("Rendering Ghost at (%d, %d) in mode %d\n",
-           entity->position.x, entity->position.y, ghost->mode);
 
-    LOG_INFO("Ghost rendered.");
 }

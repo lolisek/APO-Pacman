@@ -22,12 +22,12 @@
 #include <unistd.h>
 
 #include "../include/gui/ppm_loader.h"
-#include "../include/gui/mzapo_peri.h"
 #include "../include/gui/main_menu.h"
 #include "../include/gui/display_scoreboard.h"
 #include "../include/gui/custom_keyboard.h"
 
 #include "../include/microzed/mzapo_parlcd.h"
+#include "../include/microzed/mzapo_peri.h"
 #include "../include/microzed/mzapo_phys.h"
 #include "../include/microzed/mzapo_regs.h"
 #include "../include/microzed/serialize_lock.h"
@@ -61,12 +61,6 @@ int main(int argc, char *argv[]) {
 
   mzapo_setup();
 
-  ppm_image_t *menu_bgr = load_ppm("/tmp/veru/resources/menu.ppm");
-  if (!menu_bgr) {
-      fprintf(stderr, "Failed to load menu image\n");
-      return -1;
-  }
-
   menu_state_t menu;
   init_menu(&menu);
   draw_menu(&menu);
@@ -75,6 +69,8 @@ int main(int argc, char *argv[]) {
   scoreboard_t sb;
   init_scoreboard(&sb);
   load_scores(&sb);
+
+  bool game_running = false;
 
   while (1) {
     int action = handle_menu_input(&menu);
@@ -95,9 +91,9 @@ int main(int argc, char *argv[]) {
         if (menu.selected == 0) {
             // Start game
             printf("Starting game...\n");
-            //run_game_loop();
-            handle_keyboard_input(menu.framebuffer, &font_winFreeSystem14x16);
 
+            run_game_loop(menu.framebuffer);
+            
         } else if (menu.selected == 1) {
             // Show scoreboard
             printf("Showing scoreboard...\n");
@@ -141,7 +137,6 @@ int main(int argc, char *argv[]) {
     usleep(INPUT_POLL_DELAY_US);
   }
 
-  free_ppm(menu_bgr);
   serialize_unlock();
   return 0;
 }
