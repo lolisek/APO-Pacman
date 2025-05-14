@@ -46,10 +46,10 @@ void run_game_loop(uint16_t *shared_fb) {
                         free(name);
                     }
                     break; // Exit game over loop
-                } else if (blue_knob_is_pressed()) {
+                } 
+                if (blue_knob_is_pressed()) {
                     break; // Exit game loop
                 }
-
             }
             break;
         }
