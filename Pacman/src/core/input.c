@@ -5,46 +5,37 @@
 #include <time.h>
 #include <stdlib.h>
 
-void handle_input(GameState *gamestate, bool *running)
-{
-    // TODO implement input handling for microzed
-    // Random pacman movement for testing
-
+void handle_input(GameState *gamestate, bool *running) {
+    static uint8_t last_knob_pos = 0;
+    static int current_dir_index = 0; // Start facing right
+    static int accumulated_change = 0;
 
     uint8_t current_knob = get_red_knob_rotation();
+    int delta = (int)current_knob - (int)last_knob_pos;
 
-    // Map knob value so that 255-64 is the first quadrant, then 64-128, 128-192, 192-255
-    int quadrant;
-    if (current_knob >= 64 && current_knob < 128) {
-        quadrant = 1; // Right
-    } else if (current_knob >= 128 && current_knob < 192) {
-        quadrant = 2; // Down
-    } else if (current_knob >= 192 && current_knob < 256) {
-        quadrant = 3; // Left
-    } else {
-        // 0-63 and 255-255 (wraps around)
-        quadrant = 0; // Up
+    // Handle knob wrap-around (255 to 0 or vice versa)
+    if (delta > KNOB_CLICK_SIZE/2) delta -= KNOB_CLICK_SIZE + 1;
+    else if (delta < -KNOB_CLICK_SIZE/2) delta += KNOB_CLICK_SIZE + 1;
+
+    accumulated_change += delta;
+
+    // Check if we've moved enough for a full click
+    if (abs(accumulated_change) >= KNOB_CLICKS_PER_TURN) {
+        int clicks = accumulated_change / KNOB_CLICKS_PER_TURN;
+        accumulated_change %= KNOB_CLICKS_PER_TURN; // Keep remainder
+
+        if (clicks != 0) {
+            // Change direction (1 click = 1 direction change)
+            current_dir_index = (current_dir_index + (clicks > 0 ? 1 : -1)) % 4;
+            if (current_dir_index < 0) current_dir_index += 4; // Fix negative
+            
+            gamestate->pacman.direction = directions[current_dir_index];
+            
+            printf("Direction changed to: (%d, %d)\n", 
+                   gamestate->pacman.direction.x,
+                   gamestate->pacman.direction.y);
+        }
     }
 
-    switch (quadrant)
-    {
-        case 0: // 255-64 (wraps around)
-            gamestate->pacman.direction.x = 0;
-            gamestate->pacman.direction.y = 1;   // Up
-            break;
-        case 1: // 64-128
-            gamestate->pacman.direction.x = 1;
-            gamestate->pacman.direction.y = 0;   // Right
-            break;
-        case 2: // 128-192
-            gamestate->pacman.direction.x = 0;
-            gamestate->pacman.direction.y = -1;  // Down
-            break;
-        case 3: // 192-255
-            gamestate->pacman.direction.x = -1;
-            gamestate->pacman.direction.y = 0;   // Left
-            break;
-        default:
-            break;
-    }
+    last_knob_pos = current_knob;
 }

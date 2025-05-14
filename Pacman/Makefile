@@ -170,7 +170,9 @@ copy-executable: $(TARGET_EXE)
 copy-assets:
 	@echo "Copying assets to target..."
 	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/assets/resources"
+	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/assets/maps"
 	scp $(SSH_OPTIONS) assets/resources/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/assets/resources/
+	scp $(SSH_OPTIONS) assets/maps/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/assets/maps/
 
 # Run the executable on the target device
 run: copy-executable copy-assets

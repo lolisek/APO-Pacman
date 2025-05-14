@@ -8,36 +8,36 @@
 
 
 
-void run_game_loop(uint16_t *frame_buffer)
-{
-
+void run_game_loop(uint16_t *shared_fb) {
+    // Create a dedicated game frame buffer
+    uint16_t game_fb[LCD_SIZE];
+    
     GameState game_state;
     init_game_state(&game_state);
+    render_init();  // Ensure this initializes LCD if needed
 
-    // Main game loop
     Timer frame_timer;
     bool running = true;
 
-    while (running)
-    {
+    while (running) {
         timer_start(&frame_timer);
 
-        // Handle input
+        // Clear game frame buffer
+        memset(game_fb, 0, sizeof(game_fb));
+
         handle_input(&game_state, &running);
-
-        // Update game state
         update_game_state(&game_state);
+        render(&game_state, game_fb);
 
-        // Render the game
-        render(&game_state);
+        // Copy to shared frame buffer if needed
+        memcpy(shared_fb, game_fb, sizeof(game_fb));
 
-        sleep(1);
+        lcd_update(shared_fb);
 
-        // Control frame rate (e.g., 60 FPS)
+        // Frame rate control
         timer_stop(&frame_timer);
         uint64_t elapsed_ms = timer_get_elapsed_ms(&frame_timer);
-        if (elapsed_ms < 16)
-        {
+        if (elapsed_ms < 16) {
             timer_sleep_ms(16 - elapsed_ms);
         }
     }
