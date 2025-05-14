@@ -3,6 +3,7 @@
 #include "../include/utils/timer.h"
 #include "../include/core/input.h"
 #include "../include/utils/logger.h"
+#include "../include/gui/display_scoreboard.h"
 #include <stdio.h>
 #include <unistd.h>
 
@@ -20,6 +21,39 @@ void run_game_loop(uint16_t *shared_fb) {
     bool running = true;
 
     while (running) {
+        if (game_state.game_over) {
+            // Handle game over state
+            printf("Game Over! Final Score: %d\n", game_state.score);
+            ppm_image_t *game_over = load_ppm("/tmp/veru/assets/resources/gameover.ppm");
+            if (!game_over) {
+                fprintf(stderr, "Failed to load game over image\n");
+                break;
+            }
+
+            memcpy(game_fb, game_over->pixels, game_over->width * game_over->height * sizeof(uint16_t));
+            lcd_update(game_fb);
+
+            while (1) {              
+                if (red_knob_is_pressed()) {
+                    char *name = handle_keyboard_input(game_fb, &font_winFreeSystem14x16);
+                    if (name) {
+                        int saved = save_score(name, game_state.score);
+                        if (saved == 0) {
+                            printf("Score saved successfully!\n");
+                        } else {
+                            printf("Failed to save score.\n");
+                        }
+                        free(name);
+                    }
+                    break; // Exit game over loop
+                } else if (blue_knob_is_pressed()) {
+                    break; // Exit game loop
+                }
+
+            }
+            break;
+        }
+
         timer_start(&frame_timer);
 
         // Clear game frame buffer

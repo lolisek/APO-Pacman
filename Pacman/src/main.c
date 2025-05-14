@@ -38,17 +38,6 @@
 
 #define BACKGROUND_COLOR 0x0000  // Black
 #define TEXT_COLOR 0xFFFF        // White
-#define HIGHLIGHT_COLOR 0xF800   // Red
-
-// // testing for game loop
-// int main(int argc, char *argv[])
-// {
-
-//   // Run the game loop
-//   run_game_loop();
-
-//   return 0;
-// }
 
 int main(int argc, char *argv[]) {
   if (serialize_lock(1) <= 0) {

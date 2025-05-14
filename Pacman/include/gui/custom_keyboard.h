@@ -16,7 +16,7 @@
 #include "display_scoreboard.h"
 
 void draw_keyboard(uint16_t *fb);
-void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font);
+char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font);
 int handle_red_knob(void);
 int handle_green_knob(void);
 void highlight_key(uint16_t *fb, int key_index);

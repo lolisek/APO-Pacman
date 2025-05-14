@@ -96,6 +96,9 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *fo
             }
         }
     }
+
+    load_scores(sb);
+    lcd_update(fb);
 }
 
 void scroll_scoreboard(scoreboard_t *sb, int direction) {

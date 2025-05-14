@@ -13,7 +13,7 @@
 #include "ppm_loader.h"
 #include "draw_text.h"
 
-#define SCORES_FILE "/tmp/veru/resources/scores.txt"
+#define SCORES_FILE "/tmp/veru/assets/resources/scores.txt"
 #define MAX_SCORES 20
 #define SCORE_LINE_LENGTH 50
 

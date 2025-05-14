@@ -12,7 +12,7 @@ void draw_keyboard(uint16_t *fb) {
     free_ppm(keyboard_bgr);
 }
 
-void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
+char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
     char* alphabet[27] = {
         "Q", "W", "E", "R", "T", "Y", "U", "I",
         "O", "P", "A", "S", "D", "F", "G", "H",
@@ -101,7 +101,7 @@ void handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font) {
         usleep(KNOB_ROTATION_DELAY_MS * 1.25);
     }
 
-
+    return name;
 }
 
 int handle_green_knob() {
