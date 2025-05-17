@@ -3,6 +3,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
+
+// Include necessary headers for the project, if changed change in makefile
+#define USER "root"
 
 // Game-wide constants and configuration
 #define SCREEN_WIDTH 480
@@ -20,8 +24,6 @@
 #define PACMAN_SPEED 1
 #define GHOST_SPEED 1
 
-
-
 #define FRIGHTENED_MODE_DURATION 5 // Duration in seconds
 #define SCATTER_MODE_DURATION 7    // Duration in seconds
 #define GHOST_MODE_DURATION 20     // Duration in seconds
@@ -34,5 +36,8 @@
 
 #define PACMAN_START_LIVES 3
 #define PACMAN_START_SCORE 0
+
+// Helper for resource path
+void get_resource_path(char *out, size_t out_size, const char *filename);
 
 #endif // APO_PACMAN_CONSTANTS_H

@@ -4,28 +4,34 @@
 #include "../include/core/input.h"
 #include "../include/utils/logger.h"
 #include "../include/gui/display_scoreboard.h"
+#include "../include/utils/constants.h" // Add this include for get_resource_path
 #include <stdio.h>
 #include <unistd.h>
 
-
-
-void run_game_loop(uint16_t *shared_fb) {
+void run_game_loop(uint16_t *shared_fb)
+{
     // Create a dedicated game frame buffer
     uint16_t game_fb[LCD_SIZE];
-    
+
     GameState game_state;
     init_game_state(&game_state);
-    render_init();  // Ensure this initializes LCD if needed
+    render_init(); // Ensure this initializes LCD if needed
 
     Timer frame_timer;
     bool running = true;
 
-    while (running) {
-        if (game_state.game_over) {
+    while (running)
+    {
+        if (game_state.game_over)
+        {
             // Handle game over state
             printf("Game Over! Final Score: %d\n", game_state.score);
-            ppm_image_t *game_over = load_ppm("/tmp/veru/assets/resources/gameover.ppm");
-            if (!game_over) {
+
+            char gameover_path[256];
+            get_resource_path(gameover_path, sizeof(gameover_path), "gameover.ppm");
+            ppm_image_t *game_over = load_ppm(gameover_path);
+            if (!game_over)
+            {
                 fprintf(stderr, "Failed to load game over image\n");
                 break;
             }
@@ -33,21 +39,28 @@ void run_game_loop(uint16_t *shared_fb) {
             memcpy(game_fb, game_over->pixels, game_over->width * game_over->height * sizeof(uint16_t));
             lcd_update(game_fb);
 
-            while (1) {              
-                if (red_knob_is_pressed()) {
+            while (1)
+            {
+                if (red_knob_is_pressed())
+                {
                     char *name = handle_keyboard_input(game_fb, &font_winFreeSystem14x16);
-                    if (name) {
+                    if (name)
+                    {
                         int saved = save_score(name, game_state.score);
-                        if (saved == 0) {
+                        if (saved == 0)
+                        {
                             printf("Score saved successfully!\n");
-                        } else {
+                        }
+                        else
+                        {
                             printf("Failed to save score.\n");
                         }
                         free(name);
                     }
                     break; // Exit game over loop
-                } 
-                if (blue_knob_is_pressed()) {
+                }
+                if (blue_knob_is_pressed())
+                {
                     break; // Exit game loop
                 }
             }
@@ -71,7 +84,8 @@ void run_game_loop(uint16_t *shared_fb) {
         // Frame rate control
         timer_stop(&frame_timer);
         uint64_t elapsed_ms = timer_get_elapsed_ms(&frame_timer);
-        if (elapsed_ms < 16) {
+        if (elapsed_ms < 16)
+        {
             timer_sleep_ms(16 - elapsed_ms);
         }
     }

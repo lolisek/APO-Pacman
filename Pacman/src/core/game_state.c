@@ -2,6 +2,7 @@
 #include "../../include/entities/pacman.h"
 #include "../../include/entities/ghost.h"
 #include "../../include/utils/logger.h"
+#include "../../include/utils/constants.h" // Add this include for get_resource_path
 #include <stdio.h>
 
 void init_game_state(GameState *game_state)
@@ -24,9 +25,11 @@ void init_game_state(GameState *game_state)
 
     // Initialize the map
     map_init(&game_state->map);
-    if (!map_load_from_file(&game_state->map, "/tmp/veru/assets/maps/level1.txt"))
+    char map_path[256];
+    get_resource_path(map_path, sizeof(map_path), "level1.txt");
+    if (!map_load_from_file(&game_state->map, map_path))
     {
-        LOG_ERROR("Failed to load map from file: /assets/maps/level1.txt");
+        LOG_ERROR("Failed to load map from file: %s", map_path);
         game_state->game_over = true;
         return;
     }
@@ -42,7 +45,6 @@ void reset_level(GameState *game_state)
     pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
     // Reset ghosts
-
     ghost_init(&game_state->ghosts[0], (Vector2D){GHOST_START_X, GHOST_START_Y}, GHOST_TYPE_BLINKY);    // Blinky
     ghost_init(&game_state->ghosts[1], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_PINKY); // Pinky
     ghost_init(&game_state->ghosts[2], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_INKY);  // Inky
@@ -55,9 +57,11 @@ void reset_level(GameState *game_state)
 
     // Reload the map
     map_init(&game_state->map);
-    if (!map_load_from_file(&game_state->map, "./assets/maps/level1.txt"))
+    char map_path[256];
+    get_resource_path(map_path, sizeof(map_path), "level1.txt");
+    if (!map_load_from_file(&game_state->map, map_path))
     {
-        LOG_ERROR("Failed to reload map from file: ./assets/maps/level1.txt");
+        LOG_ERROR("Failed to reload map from file: %s", map_path);
         game_state->game_over = true;
         return;
     }

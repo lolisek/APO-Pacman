@@ -6,7 +6,7 @@
 
 # READ BEFORE RUNNING
 # TO CONNECT THROUGHT EDUROAM UNCOMMENT THE LINES 68 - ...
-# RUN CODE make copy-assets TARGET_IP=192.168.XXX.XXX
+# RUN CODE make copy-resources TARGET_IP=192.168.XXX.XXX
 # RUN CODE make run TARGET_IP=192.168.XXX.XXX
 
 
@@ -57,7 +57,7 @@ SOURCES = $(wildcard $(SRC_DIR)/*.c) \
 
 # Target executable
 TARGET_EXE = pacman_mzapo
-TARGET_IP ?= 192.168.202.127
+TARGET_IP ?= 192.168.223.121
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
@@ -65,18 +65,24 @@ $(warning Run as "TARGET_IP=192.168.202.xxx make run" or modify Makefile)
 #TARGET_IP ?= 192.168.0.25
 endif
 endif
-TARGET_DIR ?= /tmp/$(shell whoami)
+TARGET_DIR ?= /tmp/root
 TARGET_USER ?= root
 
 #---- UNCOMMENT TO USE WITH EDUROAM ----_
 
 # for use from Eduroam network use TARGET_IP=localhost and enable next line
-#SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222"
-#SSH_GDB_TUNNEL_REQUIRED=y
-#SSH_OPTIONS=-i ~/.ssh/mzapo-root-key
-#SSH_OPTIONS=-o 'ProxyJump=ohrazver@postel.felk.cvut.cz'
+# SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222"
+# SSH_GDB_TUNNEL_REQUIRED=y
+# SSH_OPTIONS=-i ~/.ssh/mzapo-root-key
+# SSH_OPTIONS=-o 'ProxyJump=nguyed24@postel.felk.cvut.cz'
 
 # ---------------------------------------
+
+# SSH options for working in Postel
+# SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222" -o "ProxyJump=Minh@193.179.66.234"
+
+# for use on postel and connecting to the target device
+SSH_OPTIONS= -i /opt/zynq/ssh-connect/mzapo-root-key
 
 # Object files (placed in the build directory)
 OBJECTS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SOURCES)))
@@ -167,15 +173,13 @@ copy-executable: $(TARGET_EXE)
 
 
 
-copy-assets:
-	@echo "Copying assets to target..."
-	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/assets/resources"
-	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/assets/maps"
-	scp $(SSH_OPTIONS) assets/resources/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/assets/resources/
-	scp $(SSH_OPTIONS) assets/maps/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/assets/maps/
+copy-resources:
+	@echo "Copying resources to target..."
+	ssh $(SSH_OPTIONS) $(TARGET_USER)@$(TARGET_IP) "mkdir -p $(TARGET_DIR)/resources"
+	scp $(SSH_OPTIONS) resources/* $(TARGET_USER)@$(TARGET_IP):$(TARGET_DIR)/resources/
 
 # Run the executable on the target device
-run: copy-executable copy-assets
+run: copy-executable copy-resources
 	ssh $(SSH_OPTIONS) -t $(TARGET_USER)@$(TARGET_IP) "cd $(TARGET_DIR) && ./$(TARGET_EXE)"
 
 

@@ -13,11 +13,11 @@
 #include "ppm_loader.h"
 #include "draw_text.h"
 
-#define SCORES_FILE "/tmp/veru/assets/resources/scores.txt"
 #define MAX_SCORES 20
 #define SCORE_LINE_LENGTH 50
 
-typedef struct {
+typedef struct
+{
     char lines[MAX_SCORES][SCORE_LINE_LENGTH];
     int total_lines;
     int scroll_offset;
