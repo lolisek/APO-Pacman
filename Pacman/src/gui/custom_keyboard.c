@@ -1,5 +1,6 @@
 #include "../../include/gui/custom_keyboard.h"
 #include "../../include/utils/constants.h" // For get_resource_path
+#include "../../include/utils/timer.h"     // Add this include for timer_sleep_ms
 
 // TO DO: Add aggregation of the knob functions
 
@@ -17,129 +18,156 @@ void draw_keyboard(uint16_t *fb)
     free_ppm(keyboard_bgr);
 }
 
+typedef struct
+{
+    int position;
+    int chars_written;
+    char name[21];
+    int last_red_action;
+    int last_green_action;
+} KeyboardState;
+
+static void update_display(uint16_t *fb, int position, const char *name, const font_descriptor_t *font)
+{
+    draw_keyboard(fb);
+    highlight_key(fb, position);
+    draw_string(fb, 135, 47, name, 0xFFFF, font);
+    lcd_update(fb);
+}
+
 char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font)
 {
-    char *alphabet[27] = {
+    static const char *alphabet[27] = {
         "Q", "W", "E", "R", "T", "Y", "U", "I",
         "O", "P", "A", "S", "D", "F", "G", "H",
         "J", "K", "L", "Z", "X", "C", "V", "B",
         "N", "M", " "};
 
-    char *name = malloc(21);
-    if (!name)
-    {
-        fprintf(stderr, "Failed to allocate memory for name\n");
-        return NULL;
-    }
-    name[0] = '\0';
-    int chars_written = 0;
-    int position = 0;
+    KeyboardState state = {0};
+    state.name[0] = '\0';
+
+    static uint8_t last_red_knob = 0;
+    static uint8_t last_green_knob = 0;
+
+    // Sensitivity: how many knob steps before moving selection (higher = less sensitive)
+    const int RED_KNOB_SENSITIVITY = 5;
+    const int GREEN_KNOB_SENSITIVITY = 5;
+    static int red_accum = 0;
+    static int green_accum = 0;
+
+    update_display(fb, state.position, state.name, font);
 
     while (!blue_knob_is_pressed())
     {
-        draw_keyboard(fb);
-        highlight_key(fb, position);
+        // --- Less sensitive rotation handling for red knob (horizontal selection) ---
+        uint8_t current_red_knob = get_red_knob_rotation();
+        int red_delta = (int8_t)(current_red_knob - last_red_knob);
+        last_red_knob = current_red_knob;
+        red_accum += red_delta;
 
-        int action = handle_red_knob();
-        if (action == 1)
-        { // Scroll right
-            position = (position + 1) % 27;
-            highlight_key(fb, position);
-            draw_string(fb, 135, 47, name, 0xFFFF, font);
-            lcd_update(fb);
-        }
-        else if (action == 2)
-        { // Scroll left
-            position = (position - 1 + 27) % 27;
-            highlight_key(fb, position);
-            draw_string(fb, 135, 47, name, 0xFFFF, font);
-            lcd_update(fb);
-        }
-        else if (action == 3)
-        { // Return selection
-            if (chars_written < 20)
-            {
-                name[chars_written++] = alphabet[position][0];
-                name[chars_written] = '\0';
-                for (int i = 0; i < chars_written; i++)
-                {
-                    fprintf(stderr, "%c", name[i]);
-                }
-                fprintf(stderr, "\n");
-                draw_string(fb, 135, 47, name, 0xFFFF, font);
-                lcd_update(fb);
-            }
-            usleep(KNOB_CLICK_DELAY_MS);
-        }
-
-        action = handle_green_knob();
-        if (action == 1)
-        { // Scroll up
-            if (position < 8)
-            {
-                continue;
-            }
-            else if (position < 24)
-            {
-                position -= 8;
-            }
-            else if (position == 24)
-            {
-                position = 17;
-            }
-            else if (position == 25)
-            {
-                position = 18;
-            }
-            else if (position == 26)
-            {
-                position = 19;
-            }
-            highlight_key(fb, position);
-            draw_string(fb, 135, 47, name, 0xFFFF, font);
-            lcd_update(fb);
-        }
-        else if (action == 2)
-        { // Scroll down
-            if (position == 17)
-            {
-                position = 24;
-            }
-            else if (position == 18)
-            {
-                position = 25;
-            }
-            else if (position == 19 || position == 20 || position == 21 || position == 22)
-            {
-                position = 26;
-            }
-            else if (position > 15)
-            {
-                continue;
-            }
-            else
-            {
-                position += 8;
-            }
-            highlight_key(fb, position);
-            draw_string(fb, 135, 47, name, 0xFFFF, font);
-            lcd_update(fb);
-        }
-        else if (action == 3)
+        if (abs(red_accum) >= RED_KNOB_SENSITIVITY)
         {
-            if (chars_written > 0)
-            {
-                name[--chars_written] = '\0';
-                draw_string(fb, 135, 47, name, 0xFFFF, font);
-                lcd_update(fb);
-            }
-            usleep(KNOB_CLICK_DELAY_MS);
+            int move = red_accum / RED_KNOB_SENSITIVITY;
+            state.position = (state.position + move + 27) % 27;
+            red_accum -= move * RED_KNOB_SENSITIVITY;
+            update_display(fb, state.position, state.name, font);
+            // No delay for fast rotation
         }
 
-        usleep(KNOB_ROTATION_DELAY_MS * 1.25);
+        int red_action = handle_red_knob();
+        if (red_action != state.last_red_action && red_action == 3 && state.chars_written < 20)
+        { // Select/add character
+            state.name[state.chars_written++] = alphabet[state.position][0];
+            state.name[state.chars_written] = '\0';
+            update_display(fb, state.position, state.name, font);
+            timer_sleep_ms(KNOB_CLICK_DELAY_MS);
+        }
+        state.last_red_action = red_action;
+
+        // --- Less sensitive rotation handling for green knob (vertical selection) ---
+        uint8_t current_green_knob = get_green_knob_rotation();
+        int green_delta = (int8_t)(current_green_knob - last_green_knob);
+        last_green_knob = current_green_knob;
+        green_accum += green_delta;
+
+        if (abs(green_accum) >= GREEN_KNOB_SENSITIVITY)
+        {
+            int move = green_accum / GREEN_KNOB_SENSITIVITY;
+            int new_pos = state.position;
+            for (int i = 0; i < abs(move); ++i)
+            {
+                if (move > 0)
+                {
+                    // Scroll up
+                    if (new_pos < 8)
+                    {
+                        // do nothing
+                    }
+                    else if (new_pos < 24)
+                    {
+                        new_pos -= 8;
+                    }
+                    else if (new_pos == 24)
+                    {
+                        new_pos = 17;
+                    }
+                    else if (new_pos == 25)
+                    {
+                        new_pos = 18;
+                    }
+                    else if (new_pos == 26)
+                    {
+                        new_pos = 19;
+                    }
+                }
+                else
+                {
+                    // Scroll down
+                    if (new_pos == 17)
+                    {
+                        new_pos = 24;
+                    }
+                    else if (new_pos == 18)
+                    {
+                        new_pos = 25;
+                    }
+                    else if (new_pos == 19 || new_pos == 20 || new_pos == 21 || new_pos == 22)
+                    {
+                        new_pos = 26;
+                    }
+                    else if (new_pos > 15)
+                    {
+                        // do nothing
+                    }
+                    else
+                    {
+                        new_pos += 8;
+                    }
+                }
+            }
+            state.position = new_pos;
+            green_accum -= move * GREEN_KNOB_SENSITIVITY;
+            update_display(fb, state.position, state.name, font);
+            // No delay for fast rotation
+        }
+
+        int green_action = handle_green_knob();
+        if (green_action != state.last_green_action && green_action == 3 && state.chars_written > 0)
+        { // Delete character
+            state.name[--state.chars_written] = '\0';
+            update_display(fb, state.position, state.name, font);
+            timer_sleep_ms(KNOB_CLICK_DELAY_MS);
+        }
+        state.last_green_action = green_action;
+
+        timer_sleep_ms((int)(KNOB_ROTATION_DELAY_MS * 0.5)); // Faster polling for smoother experience
     }
 
-    return name;
+    // Return a heap-allocated copy of the name
+    char *result = malloc(state.chars_written + 1);
+    if (result)
+        strcpy(result, state.name);
+    return result;
 }
 
 int handle_green_knob()

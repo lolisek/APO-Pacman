@@ -36,6 +36,8 @@
 
 #define PACMAN_START_LIVES 3
 #define PACMAN_START_SCORE 0
+#define KNOB_CLICK_DELAY_MS 100
+#define KNOB_ROTATION_DELAY_MS 100
 
 // --- Input configuration ---
 #define PACMAN_KNOB_SENSITIVITY 5
