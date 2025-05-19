@@ -107,9 +107,6 @@ void update_game_state(GameState *game_state)
 
     // Check for collisions between Pac-Man and ghosts
     check_collisions(game_state);
-
-    // Debug: Print Pac-Man's position
-    printf("Pac-Man position: (%d, %d)\n", game_state->pacman.position.x, game_state->pacman.position.y);
 }
 
 void check_collisions(GameState *game_state)
