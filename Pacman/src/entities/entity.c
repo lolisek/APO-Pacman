@@ -13,15 +13,7 @@ void entity_update(Entity *entity, GameState *gamestate)
 {
     if (entity->update)
     {
-        switch (entity->type)
-        {
-        case ENTITY_TYPE_PACMAN:
-            entity->update(entity, gamestate);
-            break;
-        case ENTITY_TYPE_GHOST:
-            entity->update(entity, gamestate);
-            break;
-        }
+        entity->update(entity, gamestate);
     }
 }
 
@@ -29,14 +21,6 @@ void entity_render(Entity *entity)
 {
     if (entity->render)
     {
-        switch (entity->type)
-        {
-        case ENTITY_TYPE_PACMAN:
-            entity->render(entity);
-            break;
-        case ENTITY_TYPE_GHOST:
-            entity->render(entity);
-            break;
-        }
+        entity->render(entity);
     }
 }

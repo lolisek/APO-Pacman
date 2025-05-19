@@ -1,6 +1,7 @@
 #include "../../include/core/input.h"
 #include "../../include/core/game_state.h"
 #include "../../include/microzed/mzapo_peri.h"
+#include "../../include/utils/constants.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -11,9 +12,6 @@ void handle_input(GameState *gamestate, bool *running) {
     static int current_dir_index = 0; // Start facing right
     static int accumulated_change = 0;
 
-    // Increase this multiplier to make the knob less sensitive (e.g., 2 or 3)
-    const int SENSITIVITY_FACTOR = 5;
-
     uint8_t current_knob = get_red_knob_rotation();
     int delta = (int)current_knob - (int)last_knob_pos;
 
@@ -23,13 +21,11 @@ void handle_input(GameState *gamestate, bool *running) {
     else if (delta < -128)
         delta += 256;
 
-    // Apply sensitivity factor: require more rotation before registering a change
     accumulated_change += delta;
-
     last_knob_pos = current_knob;
 
     // Only change direction when enough rotation has been accumulated
-    while (abs(accumulated_change) >= (KNOB_CLICKS_PER_TURN * SENSITIVITY_FACTOR))
+    while (abs(accumulated_change) >= (KNOB_CLICKS_PER_TURN * PACMAN_KNOB_SENSITIVITY))
     {
         int step = (accumulated_change > 0) ? 1 : -1;
         current_dir_index = (current_dir_index + step) % 4;
@@ -42,6 +38,6 @@ void handle_input(GameState *gamestate, bool *running) {
                gamestate->pacman.direction.x,
                gamestate->pacman.direction.y);
 
-        accumulated_change -= step * KNOB_CLICKS_PER_TURN * SENSITIVITY_FACTOR;
+        accumulated_change -= step * KNOB_CLICKS_PER_TURN * PACMAN_KNOB_SENSITIVITY;
     }
 }

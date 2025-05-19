@@ -7,18 +7,11 @@
 #include "../gui/ppm_loader.h"
 #include "../microzed/mzapo_peri.h"
 #include "../gui/draw_text.h"
+#include "../utils/constants.h" // Use TILE_SIZE from here
 
-#define TILE_SIZE 13
 #define PACMAN_ANIMATION_SPEED 4
 
-static ppm_image_t *wall_texture = NULL;
-static ppm_image_t *pacman_textures[5] = {NULL}; // Right, Left, Up, Down, Closed
-static ppm_image_t *ghost_red_textures[2] = {NULL}; // Right, Left
-static ppm_image_t *ghost_orange_textures[2] = {NULL}; // Right, Left
-static ppm_image_t *ghost_blue_textures[2] = {NULL}; // Right, Left
-static ppm_image_t *ghost_pink_textures[2] = {NULL}; // Right, Left
-static ppm_image_t *pellet_texture = NULL;
-static ppm_image_t *power_pellet_texture = NULL;
+// --- Renderer API ---
 
 /**
  * @brief Initializes the rendering system.
@@ -33,6 +26,9 @@ void render_init(void);
  */
 void render(GameState *game_state, uint16_t *fb);
 
+/**
+ * @brief Renders the UI (score, lives, etc).
+ */
 void render_ui(const GameState *game_state, uint16_t *fb);
 
 /**
@@ -41,8 +37,14 @@ void render_ui(const GameState *game_state, uint16_t *fb);
  */
 void render_map(const Map *map, uint16_t *fb, int offset_x, int offset_y);
 
+/**
+ * @brief Renders Pac-Man.
+ */
 void render_pacman(const Entity *pacman, uint16_t *framebuffer, int animation_frame, int offset_x, int offset_y);
 
+/**
+ * @brief Renders a ghost.
+ */
 void render_ghost(const Entity *ghost, uint16_t *framebuffer, int animation_frame, int offset_x, int offset_y);
 
 #endif // APO_PACMAN_RENDERER_H
