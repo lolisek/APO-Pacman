@@ -21,6 +21,11 @@ void run_game_loop(uint16_t *shared_fb)
     Timer frame_timer;
     bool running = true;
 
+    // game_state.game_over = true; // TESTING for keyboard input
+
+    int tick_counter = 0;
+    const int GAME_TICK_INTERVAL = 3; // Number of frames per game tick (increase for slower game logic)
+
     while (running)
     {
         if (game_state.game_over)
@@ -74,7 +79,12 @@ void run_game_loop(uint16_t *shared_fb)
         memset(game_fb, 0, sizeof(game_fb));
 
         handle_input(&game_state, &running);
-        update_game_state(&game_state);
+
+        // Only update game state every N frames (slower ticks, but high FPS)
+        if (tick_counter % GAME_TICK_INTERVAL == 0)
+        {
+            update_game_state(&game_state);
+        }
         render(&game_state, game_fb);
 
         // Copy to shared frame buffer if needed
@@ -82,13 +92,15 @@ void run_game_loop(uint16_t *shared_fb)
 
         lcd_update(shared_fb);
 
-        // Frame rate control
+        // Frame rate control (keep high FPS)
         timer_stop(&frame_timer);
         uint64_t elapsed_ms = timer_get_elapsed_ms(&frame_timer);
         if (elapsed_ms < 16)
         {
             timer_sleep_ms(16 - elapsed_ms);
         }
+
+        tick_counter++;
     }
 
     cleanup_game(&game_state);
