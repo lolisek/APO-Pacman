@@ -1,5 +1,9 @@
 #include "../../include/gui/main_menu.h"
-#include "../../include/utils/constants.h" // Add this include
+#include "../../include/utils/constants.h"
+#include "../../include/microzed/mzapo_peri.h"
+#include "../../include/utils/timer.h"
+
+int handle_knob_rotation(int last_pos);
 
 const char *menu_items[MENU_ITEMS] = {
     "Play",
@@ -39,6 +43,8 @@ int handle_menu_input(menu_state_t *menu)
     // Handle knob rotation
     int change = handle_knob_rotation(menu->last_knob_pos);
 
+    printf("Knob change: %d\n", change);
+
     if (change != 0)
     {
         int new_position = menu->selected - change;
@@ -57,6 +63,8 @@ int handle_menu_input(menu_state_t *menu)
             last_press_time = current_time;
             return menu->selected + 2; // Return selection
         }
+        // Add debounce sleep to avoid rapid re-triggering
+        timer_sleep_ms(DEBOUNCE_DELAY_MS);
     }
 
     return 0;

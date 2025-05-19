@@ -5,6 +5,7 @@
 #include "../include/utils/logger.h"
 #include "../include/gui/display_scoreboard.h"
 #include "../include/utils/constants.h" // Add this include for get_resource_path
+#include "../include/gui/custom_keyboard.h" // <-- Add this line
 #include <stdio.h>
 #include <unistd.h>
 

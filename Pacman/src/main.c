@@ -33,6 +33,7 @@
 #include "../include/microzed/serialize_lock.h"
 
 #include "../include/core/game.h"
+#include "../include/utils/timer.h" // Add this include
 
 #define _BSD_SOURCE // for usleep
 
@@ -69,8 +70,9 @@ int main(int argc, char *argv[]) {
         lcd_update(menu.framebuffer);
         menu.last_selected = menu.selected;
 
-        usleep(300000);
-
+        struct timespec ts = {0, 300000 * 1000};
+        nanosleep(&ts, NULL);
+        timer_sleep_ms(300);
     } else if (action >= 2) {
         // Menu item selected
         menu.selected = action - 2;
@@ -102,14 +104,15 @@ int main(int argc, char *argv[]) {
                     lcd_update(menu.framebuffer);
 
                     // Overscroll prevention
-                    usleep(100000);
+                    timer_sleep_ms(100);
                 }
 
-                usleep(10000);
+                timer_sleep_ms(10);
             }
 
             // Wait for button release
-            while (blue_knob_is_pressed()) usleep(10000);
+            while (blue_knob_is_pressed())
+                timer_sleep_ms(10);
 
             draw_menu(&menu);
             lcd_update(menu.framebuffer);
@@ -122,7 +125,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    usleep(INPUT_POLL_DELAY_US);
+    timer_sleep_ms(INPUT_POLL_DELAY_US / 1000);
   }
 
   serialize_unlock();

@@ -7,7 +7,7 @@
 // Game loop and state management
 
 // Function to run the main game loop
-void run_game_loop();
+void run_game_loop(uint16_t *shared_fb); // <-- Fix prototype
 void update_game_state(GameState *game_state);
 void check_collisions(GameState *game_state);
 

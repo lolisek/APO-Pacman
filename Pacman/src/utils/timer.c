@@ -27,5 +27,8 @@ uint64_t timer_get_elapsed_ms(const Timer *timer)
 // Sleep for a specified number of milliseconds
 void timer_sleep_ms(uint64_t ms)
 {
-    usleep(ms * 1000); // Convert milliseconds to microseconds
+    struct timespec ts;
+    ts.tv_sec = ms / 1000;
+    ts.tv_nsec = (ms % 1000) * 1000000;
+    nanosleep(&ts, NULL);
 }
