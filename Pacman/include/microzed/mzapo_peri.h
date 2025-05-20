@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "../microzed/mzapo_regs.h"
 #include "../microzed/mzapo_phys.h"
 

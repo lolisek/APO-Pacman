@@ -30,6 +30,7 @@ typedef struct
     GhostMode mode;       // Current behavior mode
     GhostType type;       // Type of ghost (Blinky, Pinky, Inky, Clyde)
     int frightened_timer; // Timer for frightened mode
+    Vector2D target_tile; // Target tile for the ghost to move towards
 } Ghost;
 
 // Function prototypes
