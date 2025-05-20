@@ -10,7 +10,7 @@
 // --- Knob configuration ---
 #define KNOB_CLICKS_PER_TURN 4
 #define KNOB_POSITIONS 256
-#define KNOB_CLICK_SIZE (KNOB_POSITIONS/KNOB_CLICKS_PER_TURN)
+#define KNOB_CLICK_SIZE (KNOB_POSITIONS / KNOB_CLICKS_PER_TURN)
 
 // --- Peripheral setup ---
 void mzapo_setup(void);

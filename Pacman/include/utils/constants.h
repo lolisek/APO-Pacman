@@ -40,7 +40,7 @@
 #define KNOB_ROTATION_DELAY_MS 100
 
 // --- Input configuration ---
-#define PACMAN_KNOB_SENSITIVITY 5
+#define PACMAN_KNOB_SENSITIVITY 1
 
 // --- Resource path helper ---
 void get_resource_path(char *out, size_t out_size, const char *filename);

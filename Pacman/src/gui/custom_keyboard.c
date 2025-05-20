@@ -50,8 +50,8 @@ char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font)
     static uint8_t last_green_knob = 0;
 
     // Sensitivity: how many knob steps before moving selection (higher = less sensitive)
-    const int RED_KNOB_SENSITIVITY = 5;
-    const int GREEN_KNOB_SENSITIVITY = 5;
+    const int RED_KNOB_SENSITIVITY = 4;
+    const int GREEN_KNOB_SENSITIVITY = 4;
     static int red_accum = 0;
     static int green_accum = 0;
 
