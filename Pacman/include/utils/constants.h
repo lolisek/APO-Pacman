@@ -29,8 +29,8 @@
 #define SCATTER_MODE_DURATION 7    // seconds
 #define GHOST_MODE_DURATION 20     // seconds
 
-#define PACMAN_START_X 1
-#define PACMAN_START_Y 1
+#define PACMAN_START_X 2
+#define PACMAN_START_Y 2
 #define GHOST_START_X 13
 #define GHOST_START_Y 15
 

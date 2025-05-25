@@ -4,7 +4,7 @@
 #include "../include/core/input.h"
 #include "../include/utils/logger.h"
 #include "../include/gui/display_scoreboard.h"
-#include "../include/utils/constants.h" // Add this include for get_resource_path
+#include "../include/utils/constants.h"     // Add this include for get_resource_path
 #include "../include/gui/custom_keyboard.h" // <-- Add this line
 #include <stdio.h>
 #include <unistd.h>
@@ -18,10 +18,10 @@ void run_game_loop(uint16_t *shared_fb)
     init_game_state(&game_state);
     render_init(); // Ensure this initializes LCD if needed
 
+    parlcd_hx8357_init((unsigned char *)shared_fb);
+
     Timer frame_timer;
     bool running = true;
-
-    // game_state.game_over = true; // TESTING for keyboard input
 
     int tick_counter = 0;
     const int GAME_TICK_INTERVAL = 3; // Number of frames per game tick (increase for slower game logic)
@@ -67,7 +67,8 @@ void run_game_loop(uint16_t *shared_fb)
                 }
                 if (blue_knob_is_pressed())
                 {
-                    break; // Exit game loop
+                    running = false; // Exit the game loop
+                    break;
                 }
             }
             break;
@@ -92,6 +93,13 @@ void run_game_loop(uint16_t *shared_fb)
 
         lcd_update(shared_fb);
 
+        // Check for blue button press to exit the game
+        if (blue_knob_is_pressed())
+        {
+            printf("Exiting game...\n");
+            running = false;
+        }
+
         // Frame rate control (keep high FPS)
         timer_stop(&frame_timer);
         uint64_t elapsed_ms = timer_get_elapsed_ms(&frame_timer);
@@ -101,6 +109,29 @@ void run_game_loop(uint16_t *shared_fb)
         }
 
         tick_counter++;
+    }
+
+    // Show scoreboard and allow player to input their name
+    scoreboard_t scoreboard;
+    init_scoreboard(&scoreboard);
+    load_scores(&scoreboard);
+
+    draw_scoreboard(&scoreboard, shared_fb, &font_winFreeSystem14x16);
+    lcd_update(shared_fb);
+
+    char *player_name = handle_keyboard_input(shared_fb, &font_winFreeSystem14x16);
+    if (player_name)
+    {
+        int saved = save_score(player_name, game_state.score);
+        if (saved == 0)
+        {
+            printf("Score saved successfully!\n");
+        }
+        else
+        {
+            printf("Failed to save score.\n");
+        }
+        free(player_name);
     }
 
     cleanup_game(&game_state);

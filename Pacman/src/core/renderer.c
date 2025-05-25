@@ -6,6 +6,7 @@
 #include "../../include/core/input.h"
 #include "../../include/map/map.h"
 #include "../../include/utils/constants.h"
+#include "../../include/microzed/mzapo_parlcd.h"
 
 // --- Static texture pointers ---
 static ppm_image_t *wall_texture = NULL;

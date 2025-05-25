@@ -63,7 +63,6 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     {
         LOG_DEBUG("Pac-Man's move blocked by a wall.");
     }
-
 }
 
 void pacman_render(void *specific)
@@ -77,5 +76,4 @@ void pacman_render(void *specific)
     LOG_DEBUG("Pac-Man position: (%d, %d)", entity->position.x, entity->position.y);
     LOG_DEBUG("Pac-Man lives: %d", pacman->lives);
     LOG_DEBUG("Pac-Man score: %d", pacman->score);
-
 }
