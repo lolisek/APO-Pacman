@@ -1,11 +1,6 @@
 #ifndef APO_PACMAN_GAME_STATE_H
 #define APO_PACMAN_GAME_STATE_H
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 // --- Includes ---
 #include <stdbool.h>
 #include "../entities/entity.h"

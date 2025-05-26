@@ -12,6 +12,8 @@
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
 
+#define FRAME_DURATION_MS 16 // 60 FPS
+
 // --- Map configuration ---
 #define NUM_TILES_X 23
 #define NUM_TILES_Y 25
@@ -25,19 +27,30 @@
 #define PACMAN_SPEED 1
 #define GHOST_SPEED 1
 
-#define FRIGHTENED_MODE_DURATION 5 // seconds
+#define FRIGHTENED_MODE_DURATION 15000 // seconds
 #define SCATTER_MODE_DURATION 7    // seconds
 #define GHOST_MODE_DURATION 20     // seconds
 
-#define PACMAN_START_X 2
-#define PACMAN_START_Y 2
-#define GHOST_START_X 13
-#define GHOST_START_Y 15
+// #define PACMAN_START_X 12
+// #define PACMAN_START_Y 18
+#define PACMAN_START_X 1
+#define PACMAN_START_Y 1
 
 #define PACMAN_START_LIVES 3
 #define PACMAN_START_SCORE 0
 #define KNOB_CLICK_DELAY_MS 100
 #define KNOB_ROTATION_DELAY_MS 100
+
+#define GHOST_BLINKY_START_X 11
+#define GHOST_BLINKY_START_Y 11
+#define GHOST_PINKY_START_X 12
+#define GHOST_PINKY_START_Y 11
+#define GHOST_INKY_START_X 13
+#define GHOST_INKY_START_Y 11
+#define GHOST_CLYDE_START_X 14
+#define GHOST_CLYDE_START_Y 11
+
+#define GHOST_EATEN_WAIT_TIME 5000 // milliseconds
 
 // --- Input configuration ---
 #define PACMAN_KNOB_SENSITIVITY 1

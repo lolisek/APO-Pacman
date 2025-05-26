@@ -3,26 +3,49 @@
 #include "../../include/utils/logger.h"
 #include "../../include/utils/constants.h"
 #include "../../include/core/game_state.h"
+#include "../../include/utils/timer.h"
 #include <stdlib.h>
 #include <stdio.h>
 
-void ghost_init(Entity *entity, Vector2D position, GhostType type)
+void ghost_init(Entity *entity, GhostType type)
 {
     LOG_INFO("Initializing Ghost...");
     Ghost *ghost = &entity->specific.ghost;
     ghost->mode = GHOST_MODE_SCATTER;
     ghost->type = type;
     ghost->frightened_timer = 0;
+    ghost->waiting_timer = 0; // Initialize waiting timer
 
     entity_init(entity, ENTITY_TYPE_GHOST, ghost_update, ghost_render);
-    entity->position = position;
     entity->direction = (Vector2D){0, 0};
     entity->speed = GHOST_SPEED;
 
     ghost->navigation.last_junction_pos = (Vector2D){-1, -1};
     ghost->navigation.last_junction_decision = (Vector2D){0, 0};
 
-    LOG_DEBUG("Ghost initialized at position (%d, %d) with type %d", position.x, position.y, type);
+    switch (type)
+    {
+    case GHOST_TYPE_BLINKY: // Red ghost
+        entity->position = (Vector2D){GHOST_BLINKY_START_X, GHOST_BLINKY_START_Y};
+        break;
+    case GHOST_TYPE_PINKY: // Pink ghost
+        entity->position = (Vector2D){GHOST_PINKY_START_X, GHOST_PINKY_START_Y};
+        break;
+    case GHOST_TYPE_INKY: // Cyan ghost
+        entity->position = (Vector2D){GHOST_INKY_START_X, GHOST_INKY_START_Y};
+        break;
+    case GHOST_TYPE_CLYDE: // Orange ghost
+        entity->position = (Vector2D){GHOST_CLYDE_START_X, GHOST_CLYDE_START_Y};
+        break;
+    default:
+        printf("Unknown ghost type: %d\n", type);
+        exit(0);
+        break;
+    }
+    ghost->starting_position = entity->position;
+
+    LOG_DEBUG("Ghost initialized at position (%d, %d) with type %d",
+              entity->position.x, entity->position.y, ghost->type);
 }
 
 Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
@@ -30,9 +53,6 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
                                            GhostNavigationMemory *memory,
                                            Ghost *ghost)
 {
-
-    // print the state of the game
-
     Vector2D best_dir = {0, 0};
     int min_distance = 999999;
     Vector2D reverse_dir = {-current_dir.x, -current_dir.y};
@@ -47,7 +67,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
             current.x + directions[i].x,
             current.y + directions[i].y};
 
-        if (!map_is_walkable(map, try_pos.x, try_pos.y) ||
+        if (!map_is_walkable(map, try_pos.x, try_pos.y, ENTITY_TYPE_GHOST) ||
             (directions[i].x == reverse_dir.x && directions[i].y == reverse_dir.y))
         {
             continue;
@@ -137,7 +157,6 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
 
 void ghost_update(void *specific, struct GameState *passed_gamestate)
 {
-
     Entity *entity = (Entity *)specific;
     GameState *game_state = (GameState *)passed_gamestate;
     Ghost *ghost = &entity->specific.ghost;
@@ -145,72 +164,47 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     LOG_DEBUG("Updating Ghost...");
     LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
     LOG_DEBUG("Ghost mode: %d", ghost->mode);
-    LOG_DEBUG("Ghost type: %d", ghost->type);
-    LOG_DEBUG("Ghost frightened timer: %d", ghost->frightened_timer);
-    LOG_DEBUG("Ghost target tile: (%d, %d)", ghost->target_tile.x, ghost->target_tile.y);
-    LOG_DEBUG("Ghost direction: (%d, %d)", entity->direction.x, entity->direction.y);
 
-    // Calculate the target tile based on the ghost's mode and type
+    if (ghost->mode == GHOST_MODE_EATEN)
+    {
+        // Teleport to the starting position
+        entity->position = ghost->starting_position;
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME / FRAME_DURATION_MS; // Set waiting timer
+        ghost->mode = GHOST_MODE_SCATTER;                                 // Set to SCATTER mode after teleporting
+        LOG_DEBUG("Ghost teleported to starting position and waiting.");
+        return;
+    }
+
+    if (ghost->waiting_timer > 0)
+    {
+        // Decrease the waiting timer
+        ghost->waiting_timer--;
+        if (ghost->waiting_timer == 0)
+        {
+            LOG_DEBUG("Ghost finished waiting and can now move.");
+        }
+        return; // Ghost stays in place while waiting
+    }
+
+    // Handle other ghost modes (CHASE, SCATTER, FRIGHTENED)
     ghost->target_tile = calculate_target_tile(ghost, game_state, entity);
 
-    // Determine the next direction toward the target tile
     Vector2D next_dir = get_next_direction_towards_target(
         entity->position,
         ghost->target_tile,
-        &game_state->map,
+        (struct Map *)&game_state->map,
         entity->direction,
         &ghost->navigation,
         ghost);
 
-    LOG_DEBUG("Ghost new target tile: (%d, %d)", ghost->target_tile.x, ghost->target_tile.y);
-    LOG_DEBUG("Ghost new direction: (%d, %d)", entity->direction.x, entity->direction.y);
-
-    // Calculate the next position based on the chosen direction
     Vector2D next_pos = {
-        entity->position.x + next_dir.x * entity->speed,
-        entity->position.y + next_dir.y * entity->speed};
+        entity->position.x + next_dir.x,
+        entity->position.y + next_dir.y};
 
-    // Check if the next position is walkable
-    if (map_is_walkable(&game_state->map, next_pos.x, next_pos.y))
+    if (map_is_walkable(&game_state->map, next_pos.x, next_pos.y, ENTITY_TYPE_GHOST))
     {
-        // Update the ghost's position and direction
         entity->position = next_pos;
         entity->direction = next_dir;
-    }
-    else
-    {
-        // Fallback: Avoid immediate reversal unless no other options exist
-        Vector2D reverse_dir = {-entity->direction.x, -entity->direction.y};
-        if (next_dir.x == reverse_dir.x && next_dir.y == reverse_dir.y)
-        {
-            // Try to find an alternative direction
-            Vector2D alternative_dir = {0, 0};
-            Vector2D directions[] = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2D try_pos = {
-                    entity->position.x + directions[i].x,
-                    entity->position.y + directions[i].y};
-
-                if (map_is_walkable(&game_state->map, try_pos.x, try_pos.y) &&
-                    !(directions[i].x == reverse_dir.x && directions[i].y == reverse_dir.y))
-                {
-                    alternative_dir = directions[i];
-                    break;
-                }
-            }
-
-            // Use the alternative direction if found
-            if (alternative_dir.x != 0 || alternative_dir.y != 0)
-            {
-                entity->direction = alternative_dir;
-            }
-            else
-            {
-                // If no alternative, reverse direction as a last resort
-                entity->direction = reverse_dir;
-            }
-        }
     }
 }
 
@@ -222,6 +216,9 @@ Vector2D calculate_target_tile(Ghost *ghost, GameState *state, Entity *ghost_ent
 
     switch (ghost->mode)
     {
+    case GHOST_MODE_EATEN:
+        return (Vector2D){NUM_TILES_X / 2, NUM_TILES_Y / 2};
+
     case GHOST_MODE_SCATTER:
         switch (ghost->type)
         {
@@ -284,7 +281,7 @@ Vector2D calculate_target_tile(Ghost *ghost, GameState *state, Entity *ghost_ent
         do
         {
             random_tile = (Vector2D){rand() % NUM_TILES_X, rand() % NUM_TILES_Y};
-        } while (!map_is_walkable(&state->map, random_tile.x, random_tile.y));
+        } while (!map_is_walkable(&state->map, random_tile.x, random_tile.y, ENTITY_TYPE_GHOST));
         return random_tile;
     }
 

@@ -14,10 +14,10 @@ void init_game_state(GameState *game_state)
     pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
     // Initialize ghosts
-    ghost_init(&game_state->ghosts[0], (Vector2D){GHOST_START_X, GHOST_START_Y}, GHOST_TYPE_BLINKY);    // Blinky
-    ghost_init(&game_state->ghosts[1], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_PINKY); // Pinky
-    ghost_init(&game_state->ghosts[2], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_INKY);  // Inky
-    ghost_init(&game_state->ghosts[3], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_CLYDE); // Clyde
+    ghost_init(&game_state->ghosts[0], GHOST_TYPE_BLINKY); // Blinky
+    ghost_init(&game_state->ghosts[1], GHOST_TYPE_PINKY);  // Pinky
+    ghost_init(&game_state->ghosts[2], GHOST_TYPE_INKY);   // Inky
+    ghost_init(&game_state->ghosts[3], GHOST_TYPE_CLYDE);  // Clyde
 
     // Initialize score and lives
     game_state->score = PACMAN_START_SCORE;
@@ -46,10 +46,10 @@ void reset_level(GameState *game_state)
     pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
     // Reset ghosts
-    ghost_init(&game_state->ghosts[0], (Vector2D){GHOST_START_X, GHOST_START_Y}, GHOST_TYPE_BLINKY);    // Blinky
-    ghost_init(&game_state->ghosts[1], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_PINKY); // Pinky
-    ghost_init(&game_state->ghosts[2], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_INKY);  // Inky
-    ghost_init(&game_state->ghosts[3], (Vector2D){GHOST_START_X + 1, GHOST_START_Y}, GHOST_TYPE_CLYDE); // Clyde
+    ghost_init(&game_state->ghosts[0], GHOST_TYPE_BLINKY); // Blinky
+    ghost_init(&game_state->ghosts[1], GHOST_TYPE_PINKY);  // Pinky
+    ghost_init(&game_state->ghosts[2], GHOST_TYPE_INKY);   // Inky
+    ghost_init(&game_state->ghosts[3], GHOST_TYPE_CLYDE);  // Clyde
 
     // Reset score and lives
     game_state->score = 0;

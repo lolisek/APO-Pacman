@@ -9,7 +9,8 @@ typedef enum
     TILE_EMPTY = 0,
     TILE_WALL,
     TILE_PELLET,
-    TILE_POWER_PELLET
+    TILE_POWER_PELLET,
+    TILE_GATE
 } TileType;
 
 // Tile structure

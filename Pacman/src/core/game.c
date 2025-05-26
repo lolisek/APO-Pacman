@@ -20,13 +20,10 @@ void run_game_loop(uint16_t *shared_fb)
 
     parlcd_hx8357_init((unsigned char *)shared_fb);
 
-    Timer frame_timer;
     bool running = true;
 
     int tick_counter = 0;
     const int GAME_TICK_INTERVAL = 3; // Number of frames per game tick (increase for slower game logic)
-
-    const int FRAME_DURATION_MS = 16; // Target 60 FPS
 
     while (running)
     {
@@ -180,7 +177,7 @@ void check_collisions(GameState *game_state)
                 ghost->mode = GHOST_MODE_EATEN; // Change ghost mode to eaten
                 LOG_INFO("Pac-Man ate a ghost! Score: %d", game_state->score);
             }
-            else
+            else if (ghost->mode != GHOST_MODE_EATEN)
             {
                 // Pac-Man loses a life
                 game_state->lives--;
@@ -198,8 +195,9 @@ void check_collisions(GameState *game_state)
                 // Reset ghost positions
                 for (int j = 0; j < NUM_GHOSTS; j++)
                 {
-                    game_state->ghosts[j].position.x = GHOST_START_X + j;
-                    game_state->ghosts[j].position.y = GHOST_START_Y;
+                    game_state->ghosts[j].position.x = game_state->ghosts[j].specific.ghost.starting_position.x;
+                    game_state->ghosts[j].position.y = game_state->ghosts[j].specific.ghost.starting_position.y;
+                    game_state->ghosts[j].specific.ghost.mode = GHOST_MODE_SCATTER; // Reset mode
                 }
 
                 // Reset frightened timer

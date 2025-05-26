@@ -17,6 +17,8 @@ static ppm_image_t *ghost_blue_textures[2] = {NULL};   // Right, Left
 static ppm_image_t *ghost_pink_textures[2] = {NULL};   // Right, Left
 static ppm_image_t *pellet_texture = NULL;
 static ppm_image_t *power_pellet_texture = NULL;
+static ppm_image_t *vulnerable_ghost_texture = NULL;
+static ppm_image_t *eaten_ghost_texture = NULL;
 
 // --- Helper: Load a texture and print error if it fails ---
 static ppm_image_t *load_texture_or_warn(const char *resource_name)
@@ -57,6 +59,9 @@ void render_init(void)
     load_ghost_textures("ghost-or-right.ppm", "ghost-or-left.ppm", ghost_orange_textures);
     load_ghost_textures("ghost-blue-right.ppm", "ghost-blue-left.ppm", ghost_blue_textures);
     load_ghost_textures("ghost-pink-right.ppm", "ghost-pink-left.ppm", ghost_pink_textures);
+
+    vulnerable_ghost_texture = load_texture_or_warn("vulnerable-ghost.ppm");
+    eaten_ghost_texture = load_texture_or_warn("eyes.ppm");
 
     // Check for any missing essential textures
     if (!wall_texture || !pellet_texture || !power_pellet_texture)
@@ -138,6 +143,7 @@ void render_map(const Map *map, uint16_t *fb, int offset_x, int offset_y)
             switch (map->tiles[y][x].type)
             {
             case TILE_WALL:
+            case TILE_GATE:
                 if (wall_texture)
                     draw_ppm_image(fb, screen_x, screen_y, wall_texture);
                 break;
@@ -192,20 +198,40 @@ void render_ghost(const Entity *ghost, uint16_t *fb, int animation_frame, int of
     int y = offset_y + ghost->position.y * TILE_SIZE;
 
     ppm_image_t *texture = NULL;
-    switch (ghost->specific.ghost.type)
+
+    if (ghost->specific.ghost.mode == GHOST_MODE_EATEN)
     {
-    case GHOST_TYPE_BLINKY:
-        texture = ghost->direction.x > 0 ? ghost_red_textures[0] : ghost_red_textures[1];
-        break;
-    case GHOST_TYPE_PINKY:
-        texture = ghost->direction.x > 0 ? ghost_pink_textures[0] : ghost_pink_textures[1];
-        break;
-    case GHOST_TYPE_INKY:
-        texture = ghost->direction.x > 0 ? ghost_blue_textures[0] : ghost_blue_textures[1];
-        break;
-    case GHOST_TYPE_CLYDE:
-        texture = ghost->direction.x > 0 ? ghost_orange_textures[0] : ghost_orange_textures[1];
-        break;
+        // Render only the eyes when the ghost is eaten
+        texture = eaten_ghost_texture;
+    }
+    else if (ghost->specific.ghost.waiting_timer > 0)
+    {
+        // Render the ghost as stationary while waiting
+        texture = ghost_red_textures[0]; // Example: Use the red ghost texture
+    }
+    else if (ghost->specific.ghost.mode == GHOST_MODE_FRIGHTENED)
+    {
+        // Render the vulnerable ghost texture
+        texture = vulnerable_ghost_texture;
+    }
+    else
+    {
+        // Render the ghost's normal texture based on its type and direction
+        switch (ghost->specific.ghost.type)
+        {
+        case GHOST_TYPE_BLINKY:
+            texture = ghost->direction.x > 0 ? ghost_red_textures[0] : ghost_red_textures[1];
+            break;
+        case GHOST_TYPE_PINKY:
+            texture = ghost->direction.x > 0 ? ghost_pink_textures[0] : ghost_pink_textures[1];
+            break;
+        case GHOST_TYPE_INKY:
+            texture = ghost->direction.x > 0 ? ghost_blue_textures[0] : ghost_blue_textures[1];
+            break;
+        case GHOST_TYPE_CLYDE:
+            texture = ghost->direction.x > 0 ? ghost_orange_textures[0] : ghost_orange_textures[1];
+            break;
+        }
     }
 
     if (texture)

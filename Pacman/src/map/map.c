@@ -21,7 +21,6 @@ void map_init(Map *map)
 }
 bool map_load_from_file(Map *map, const char *filename)
 {
-
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
@@ -50,12 +49,8 @@ bool map_load_from_file(Map *map, const char *filename)
             case '@':
                 map->tiles[y][x].type = TILE_POWER_PELLET;
                 break;
-
-            case 'G':
-                map->tiles[y][x].type = TILE_EMPTY; // Placeholder for monster
-                break;
-            case 'P':
-                map->tiles[y][x].type = TILE_EMPTY; // Placeholder for Pacman
+            case '=':
+                map->tiles[y][x].type = TILE_GATE; // Gate tile
                 break;
             default:
                 fprintf(stderr, "Unknown tile type: %c\n", tile_char);
@@ -98,12 +93,24 @@ void map_render(const Map *map)
         printf("\n");
     }
 };
-bool map_is_walkable(const Map *map, int x, int y)
+bool map_is_walkable(const Map *map, int x, int y, EntityType entity_type)
 {
     // Check if the tile at (x, y) is walkable
     if (x < 0 || x >= map->width || y < 0 || y >= map->height)
     {
         return false; // Out of bounds
     }
-    return map->tiles[y][x].type != TILE_WALL; // Walkable if not a wall
+
+    TileType tile_type = map->tiles[y][x].type;
+    if (tile_type == TILE_WALL)
+    {
+        return false; // Walls are not walkable
+    }
+    else if (tile_type == TILE_GATE)
+    {
+        // Allow only ghosts to pass through gates
+        return entity_type == ENTITY_TYPE_GHOST;
+    }
+
+    return true; // All other tiles are walkable
 }

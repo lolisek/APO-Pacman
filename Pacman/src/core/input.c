@@ -2,6 +2,7 @@
 #include "../../include/core/game_state.h"
 #include "../../include/microzed/mzapo_peri.h"
 #include "../../include/utils/constants.h"
+#include "../../include/utils/logger.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -13,6 +14,7 @@ void handle_input(GameState *gamestate, bool *running) {
     static int accumulated_change = 0;
 
     uint8_t current_knob = get_red_knob_rotation();
+    LOG_DEBUG("Current knob position: %d, Last knob position: %d", current_knob, last_knob_pos);
     int delta = (int)current_knob - (int)last_knob_pos;
 
     // Handle knob wrap-around (assuming 8-bit value)

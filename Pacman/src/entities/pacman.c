@@ -23,18 +23,14 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     Entity *entity = (Entity *)specific;
     GameState *game_state = (GameState *)passed_gamestate;
 
-    // Access the embedded Pacman structure directly
-    // Pacman *pacman = &entity->specific.pacman;
-
     // Predict Pac-Man's next position
     Vector2D next_position = {
-        entity->position.x + entity->direction.x * entity->speed,
-        entity->position.y + entity->direction.y * entity->speed};
+        entity->position.x + entity->direction.x,
+        entity->position.y + entity->direction.y};
 
     // Check if the next position is walkable
-    if (map_is_walkable(&game_state->map, next_position.x, next_position.y))
+    if (map_is_walkable(&game_state->map, next_position.x, next_position.y, ENTITY_TYPE_PACMAN))
     {
-        // Update Pac-Man's position
         entity->position = next_position;
 
         // Check for collisions with pellets
@@ -57,7 +53,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     }
     else
     {
-        LOG_DEBUG("Pac-Man's move blocked by a wall.");
+        LOG_DEBUG("Pac-Man's move blocked by a wall or gate.");
     }
 }
 

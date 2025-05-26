@@ -16,6 +16,7 @@ typedef struct
 void map_init(Map *map);
 bool map_load_from_file(Map *map, const char *filename);
 void map_render(const Map *map);
-bool map_is_walkable(const Map *map, int x, int y);
+bool map_is_walkable(const Map *map, int x, int y,
+                     EntityType entity_type); // Check if a tile is walkable for a specific entity type
 
 #endif // APO_PACMAN_MAP_H

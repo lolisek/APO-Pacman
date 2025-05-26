@@ -40,13 +40,15 @@ typedef struct
     GhostMode mode;       // Current behavior mode
     GhostType type;       // Type of ghost (Blinky, Pinky, Inky, Clyde)
     int frightened_timer; // Timer for frightened mode
+    int waiting_timer;
     Vector2D target_tile; // Target tile for the ghost to move towards
+    Vector2D starting_position;       // Starting position of the ghost
     GhostNavigationMemory navigation; // Last position stored
 } Ghost;
 
 
 // Function prototypes
-void ghost_init(struct Entity *entity, Vector2D position, GhostType type); // Initialize ghost
+void ghost_init(struct Entity *entity, GhostType type);                    // Initialize ghost
 void ghost_update(void *specific, struct GameState *gamestate);            // Override for update
 void ghost_render(void *specific);                                         // Override for render
 
