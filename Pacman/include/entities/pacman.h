@@ -12,6 +12,7 @@ struct Entity;
 typedef struct Pacman
 {
     int lives; // Number of lives
+    Vector2D buffered_direction; // Buffered direction for smoother movement
 } Pacman;
 
 // Function prototypes

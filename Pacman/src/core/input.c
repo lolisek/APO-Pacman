@@ -8,7 +8,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void handle_input(GameState *gamestate, bool *running) {
+void handle_input(GameState *gamestate, bool *running)
+{
     static uint8_t last_knob_pos = 0;
     static int current_dir_index = 0; // Start facing right
     static int accumulated_change = 0;
@@ -34,7 +35,8 @@ void handle_input(GameState *gamestate, bool *running) {
         if (current_dir_index < 0)
             current_dir_index += 4;
 
-        gamestate->pacman.direction = directions[current_dir_index];
+        // Update the buffered direction
+        gamestate->pacman.specific.pacman.buffered_direction = directions[current_dir_index];
 
         accumulated_change -= step * KNOB_CLICKS_PER_TURN * PACMAN_KNOB_SENSITIVITY;
     }
