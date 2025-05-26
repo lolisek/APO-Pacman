@@ -8,10 +8,10 @@
 // Input handling
 
 static const Vector2D directions[] = {
-    {1, 0},   // Right
-    {0, -1},  // Down
-    {-1, 0},  // Left
-    {0, 1}    // Up
+    {-1, 0}, // Left
+    {0, -1}, // Down
+    {1, 0},  // Right
+    {0, 1}   // Up
 };
 
 // Function to handle user input
