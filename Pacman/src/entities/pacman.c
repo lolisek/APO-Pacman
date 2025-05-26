@@ -66,7 +66,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
         {
             game_state->score += 50;                                 // Increase score
             game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the power pellet
-            game_state->frightened_timer = FRIGHTENED_MODE_DURATION; // Set frightened mode duration
+            game_state->frightened_timer = FRIGHTENED_MODE_DURATION / FRAME_DURATION_MS; // Set frightened mode duration
         }
     }
 }

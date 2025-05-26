@@ -235,5 +235,7 @@ void render_ghost(const Entity *ghost, uint16_t *fb, int animation_frame, int of
     }
 
     if (texture)
+    {
         draw_ppm_image(fb, x, y, texture);
+    }
 }

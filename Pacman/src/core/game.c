@@ -139,9 +139,16 @@ void run_game_loop(uint16_t *shared_fb)
 
 void update_game_state(GameState *game_state)
 {
+    static int ghost_tick_counter = 0; // Counter to control ghost movement speed
+
     if (game_state->frightened_timer > 0)
     {
         game_state->frightened_timer--;
+        LOG_DEBUG("Frightened timer: %d", game_state->frightened_timer);
+        if (game_state->frightened_timer == 0)
+        {
+            LOG_INFO("Frightened mode ended.");
+        }
     }
 
     // Update Pac-Man
@@ -150,11 +157,17 @@ void update_game_state(GameState *game_state)
     // Update ghost modes
     update_ghost_modes(game_state);
 
-    // Update ghosts
-    for (int i = 0; i < NUM_GHOSTS; i++)
+    // Update ghosts only every N ticks
+    const int GHOST_MOVEMENT_INTERVAL = 2; // Adjust this value to slow down ghosts
+    if (ghost_tick_counter % GHOST_MOVEMENT_INTERVAL == 0)
     {
-        entity_update(&game_state->ghosts[i], game_state);
+        for (int i = 0; i < NUM_GHOSTS; i++)
+        {
+            entity_update(&game_state->ghosts[i], game_state);
+        }
     }
+
+    ghost_tick_counter++;
 
     // Check for collisions
     check_collisions(game_state);

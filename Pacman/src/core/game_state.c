@@ -92,6 +92,11 @@ void update_ghost_modes(GameState *game_state)
         {
             ghost->mode = GHOST_MODE_FRIGHTENED;
         }
+        else if (ghost->mode == GHOST_MODE_FRIGHTENED)
+        {
+            // Reset to normal mode after frightened state ends
+            ghost->mode = GHOST_MODE_SCATTER;
+        }
         else
         {
             // Use the global timer to alternate between SCATTER and CHASE modes

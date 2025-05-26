@@ -165,43 +165,34 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
     LOG_DEBUG("Ghost mode: %d", ghost->mode);
 
+    if (ghost->mode == GHOST_MODE_FRIGHTENED)
+    {
+        entity->speed = FRIGHTENED_GHOST_SPEED; // Reduce speed during frightened mode
+    }
+    else
+    {
+        entity->speed = GHOST_SPEED; // Reset to normal speed
+    }
+
     if (ghost->mode == GHOST_MODE_EATEN)
     {
-        // Set the ghost house position
-        Vector2D ghost_house = {NUM_TILES_X / 2, NUM_TILES_Y / 2}; // Adjust to your ghost house center
-
-        // Move toward the ghost house
-        Vector2D next_dir = get_next_direction_towards_target(
-            entity->position,
-            ghost_house,
-            (struct Map *)&game_state->map,
-            entity->direction,
-            &ghost->navigation,
-            ghost);
-
-        Vector2D next_pos = {
-            entity->position.x + next_dir.x,
-            entity->position.y + next_dir.y};
-
-        if (map_is_walkable(&game_state->map, next_pos.x, next_pos.y, ENTITY_TYPE_GHOST))
-        {
-            entity->position = next_pos;
-            entity->direction = next_dir;
-        }
-
-        // Check if ghost reached the ghost house
-        if (entity->position.x == ghost_house.x && entity->position.y == ghost_house.y)
-        {
-            ghost->mode = GHOST_MODE_EXITING; // New mode for exiting the spawn area
-            LOG_DEBUG("Ghost is exiting the spawn area.");
-        }
-
+        // Teleport ghost to spawn point
+        entity->position = ghost->starting_position;
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME / FRAME_DURATION_MS; // Set wait time
+        ghost->mode = GHOST_MODE_EXITING;                                 // Set mode to exiting
+        LOG_DEBUG("Ghost teleported to spawn point at (%d, %d).", ghost->starting_position.x, ghost->starting_position.y);
         return;
     }
 
     // Handle exiting the spawn area
     if (ghost->mode == GHOST_MODE_EXITING)
     {
+        if (ghost->waiting_timer > 0)
+        {
+            ghost->waiting_timer--; // Wait before exiting
+            return;
+        }
+
         // Move toward the gate to exit the spawn area
         Vector2D gate_position = {NUM_TILES_X / 2, NUM_TILES_Y / 2 - 1}; // Adjust to your gate position
 
