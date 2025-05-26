@@ -18,7 +18,8 @@ typedef enum
     GHOST_MODE_CHASE,
     GHOST_MODE_SCATTER,
     GHOST_MODE_FRIGHTENED,
-    GHOST_MODE_EATEN
+    GHOST_MODE_EATEN,
+    GHOST_MODE_EXITING
 } GhostMode;
 
 typedef enum

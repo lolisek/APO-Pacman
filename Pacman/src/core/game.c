@@ -162,11 +162,15 @@ void update_game_state(GameState *game_state)
 
 void check_collisions(GameState *game_state)
 {
+    const int COLLISION_TOLERANCE = 1; // Allow a small tolerance for collision detection
+
     // Check for collisions between Pac-Man and ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)
     {
-        if (game_state->ghosts[i].position.x == game_state->pacman.position.x &&
-            game_state->ghosts[i].position.y == game_state->pacman.position.y)
+        int dx = abs(game_state->ghosts[i].position.x - game_state->pacman.position.x);
+        int dy = abs(game_state->ghosts[i].position.y - game_state->pacman.position.y);
+
+        if (dx <= COLLISION_TOLERANCE && dy <= COLLISION_TOLERANCE)
         {
             // Handle collision with ghost
             Ghost *ghost = &game_state->ghosts[i].specific.ghost;
@@ -206,3 +210,4 @@ void check_collisions(GameState *game_state)
         }
     }
 }
+
