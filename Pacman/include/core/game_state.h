@@ -48,6 +48,18 @@ extern "C"
      */
     void cleanup_game(GameState *game_state);
 
+    /**
+     * @brief Update the game state.
+     * @param game_state Pointer to the game state to update.
+     */
+    void game_state_update(GameState *game_state);
+
+    /**
+     * @brief Update the modes of the ghosts.
+     * @param game_state Pointer to the game state containing the ghosts.
+     */
+    void update_ghost_modes(GameState *game_state);
+
 #ifdef __cplusplus
 }
 #endif

@@ -16,9 +16,6 @@ void pacman_init(Entity *entity, Vector2D position)
     entity->position = position;
     entity->direction = (Vector2D){0, 0};
     entity->speed = PACMAN_SPEED;
-
-    LOG_DEBUG("Pac-Man initialized at position (%d, %d) with %d lives and score %d",
-              entity->position.x, entity->position.y, entity->specific.pacman.lives, entity->specific.pacman.score);
 }
 
 void pacman_update(void *specific, struct GameState *passed_gamestate)
@@ -28,13 +25,6 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
 
     // Access the embedded Pacman structure directly
     // Pacman *pacman = &entity->specific.pacman;
-
-    LOG_DEBUG("Updating Pac-Man...");
-    LOG_DEBUG("Current position: (%d, %d)", entity->position.x, entity->position.y);
-    LOG_DEBUG("Current direction: (%d, %d)", entity->direction.x, entity->direction.y);
-    LOG_DEBUG("Current speed: %d", entity->speed);
-    LOG_DEBUG("Current lives: %d", pacman->lives);
-    LOG_DEBUG("Current score: %d", pacman->score);
 
     // Predict Pac-Man's next position
     Vector2D next_position = {
@@ -57,6 +47,12 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
                 game_state->score += 10;                                 // Increase score
                 game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the pellet from the map
             }
+            else if (game_state->map.tiles[tile_y][tile_x].type == TILE_POWER_PELLET)
+            {
+                game_state->score += 50;                                 // Increase score
+                game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the power pellet
+                game_state->frightened_timer = FRIGHTENED_MODE_DURATION; // Set frightened mode duration
+            }
         }
     }
     else
@@ -67,13 +63,4 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
 
 void pacman_render(void *specific)
 {
-    // Entity *entity = (Entity *)specific;
-
-    // Access the embedded Pacman structure directly
-    // Pacman *pacman = &entity->specific.pacman;
-
-    LOG_DEBUG("Rendering Pac-Man...");
-    LOG_DEBUG("Pac-Man position: (%d, %d)", entity->position.x, entity->position.y);
-    LOG_DEBUG("Pac-Man lives: %d", pacman->lives);
-    LOG_DEBUG("Pac-Man score: %d", pacman->score);
 }

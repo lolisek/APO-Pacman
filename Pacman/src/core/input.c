@@ -34,10 +34,6 @@ void handle_input(GameState *gamestate, bool *running) {
 
         gamestate->pacman.direction = directions[current_dir_index];
 
-        printf("Direction changed to: (%d, %d)\n",
-               gamestate->pacman.direction.x,
-               gamestate->pacman.direction.y);
-
         accumulated_change -= step * KNOB_CLICKS_PER_TURN * PACMAN_KNOB_SENSITIVITY;
     }
 }

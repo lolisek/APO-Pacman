@@ -33,7 +33,7 @@
 #include "../include/microzed/serialize_lock.h"
 
 #include "../include/core/game.h"
-#include "../include/utils/timer.h" // Add this include
+#include "../include/utils/timer.h"
 
 #define _BSD_SOURCE // for usleep
 
@@ -58,6 +58,9 @@ int main(int argc, char *argv[]) {
     scoreboard_t sb;
     init_scoreboard(&sb);
     load_scores(&sb);
+
+    // Initialize the global timer
+    timer_init_global();
 
     while (1)
     {

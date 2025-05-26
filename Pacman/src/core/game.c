@@ -26,8 +26,12 @@ void run_game_loop(uint16_t *shared_fb)
     int tick_counter = 0;
     const int GAME_TICK_INTERVAL = 3; // Number of frames per game tick (increase for slower game logic)
 
+    const int FRAME_DURATION_MS = 16; // Target 60 FPS
+
     while (running)
     {
+        uint64_t frame_start_time = timer_get_global_elapsed_ms();
+
         if (game_state.game_over)
         {
             // Handle game over state
@@ -74,8 +78,6 @@ void run_game_loop(uint16_t *shared_fb)
             break;
         }
 
-        timer_start(&frame_timer);
-
         // Clear game frame buffer
         memset(game_fb, 0, sizeof(game_fb));
 
@@ -100,12 +102,13 @@ void run_game_loop(uint16_t *shared_fb)
             running = false;
         }
 
-        // Frame rate control (keep high FPS)
-        timer_stop(&frame_timer);
-        uint64_t elapsed_ms = timer_get_elapsed_ms(&frame_timer);
-        if (elapsed_ms < 16)
+        // Frame rate control
+        uint64_t frame_end_time = timer_get_global_elapsed_ms();
+        uint64_t frame_elapsed_time = frame_end_time - frame_start_time;
+
+        if (frame_elapsed_time < FRAME_DURATION_MS)
         {
-            timer_sleep_ms(16 - elapsed_ms);
+            timer_sleep_ms(FRAME_DURATION_MS - frame_elapsed_time);
         }
 
         tick_counter++;
@@ -139,8 +142,16 @@ void run_game_loop(uint16_t *shared_fb)
 
 void update_game_state(GameState *game_state)
 {
+    if (game_state->frightened_timer > 0)
+    {
+        game_state->frightened_timer--;
+    }
+
     // Update Pac-Man
     entity_update(&game_state->pacman, game_state);
+
+    // Update ghost modes
+    update_ghost_modes(game_state);
 
     // Update ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)
@@ -148,7 +159,7 @@ void update_game_state(GameState *game_state)
         entity_update(&game_state->ghosts[i], game_state);
     }
 
-    // Check for collisions between Pac-Man and ghosts
+    // Check for collisions
     check_collisions(game_state);
 }
 

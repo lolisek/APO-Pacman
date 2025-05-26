@@ -21,4 +21,10 @@ void update_game_state(GameState *game_state);
  */
 void check_collisions(GameState *game_state);
 
+/**
+ * @brief Updates ghost modes (CHASE, SCATTER, FRIGHTENED).
+ * @param game_state Pointer to the game state.
+ */
+void update_ghost_modes(GameState *game_state); // New function
+
 #endif // APO_PACMAN_GAME_H

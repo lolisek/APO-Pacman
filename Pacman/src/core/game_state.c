@@ -3,6 +3,7 @@
 #include "../../include/entities/ghost.h"
 #include "../../include/utils/logger.h"
 #include "../../include/utils/constants.h" // Add this include for get_resource_path
+#include "../../include/utils/timer.h"
 #include <stdio.h>
 
 void init_game_state(GameState *game_state)
@@ -79,4 +80,30 @@ void cleanup_game(GameState *game_state)
     // you should free it here.
 
     LOG_INFO("Game state cleanup complete.");
+}
+
+void update_ghost_modes(GameState *game_state)
+{
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
+        Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+
+        if (game_state->frightened_timer > 0)
+        {
+            ghost->mode = GHOST_MODE_FRIGHTENED;
+        }
+        else
+        {
+            // Use the global timer to alternate between SCATTER and CHASE modes
+            uint64_t elapsed_time = timer_get_global_elapsed_ms();
+            if ((elapsed_time / (SCATTER_MODE_DURATION * 1000)) % 2 == 0)
+            {
+                ghost->mode = GHOST_MODE_SCATTER;
+            }
+            else
+            {
+                ghost->mode = GHOST_MODE_CHASE;
+            }
+        }
+    }
 }

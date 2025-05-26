@@ -5,6 +5,24 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+static struct timespec global_start_time;
+
+// Initialize the global timer
+void timer_init_global()
+{
+    clock_gettime(CLOCK_MONOTONIC, &global_start_time);
+}
+
+// Get the elapsed time in milliseconds since the global timer started
+uint64_t timer_get_global_elapsed_ms()
+{
+    struct timespec current_time;
+    clock_gettime(CLOCK_MONOTONIC, &current_time);
+
+    return (current_time.tv_sec - global_start_time.tv_sec) * 1000 +
+           (current_time.tv_nsec - global_start_time.tv_nsec) / 1000000;
+}
+
 // Start the timer
 void timer_start(Timer *timer)
 {

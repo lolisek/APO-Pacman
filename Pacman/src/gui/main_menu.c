@@ -43,8 +43,6 @@ int handle_menu_input(menu_state_t *menu)
     // Handle knob rotation
     int change = handle_knob_rotation(menu->last_knob_pos);
 
-    printf("Knob change: %d\n", change);
-
     if (change != 0)
     {
         int new_position = menu->selected - change;
