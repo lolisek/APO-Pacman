@@ -112,3 +112,33 @@ void update_ghost_modes(GameState *game_state)
         }
     }
 }
+
+void update_game_state(GameState *game_state)
+{
+    static int ghost_tick_counter = 0;
+
+    if (game_state->frightened_timer > 0)
+    {
+        game_state->frightened_timer--;
+        if (game_state->frightened_timer == 0)
+        {
+            LOG_INFO("Frightened mode ended.");
+        }
+    }
+
+    entity_update(&game_state->pacman, game_state);
+
+    update_ghost_modes(game_state);
+
+    const int GHOST_MOVEMENT_INTERVAL = 2;
+    if (ghost_tick_counter % GHOST_MOVEMENT_INTERVAL == 0)
+    {
+        for (int i = 0; i < NUM_GHOSTS; i++)
+        {
+            entity_update(&game_state->ghosts[i], game_state);
+        }
+    }
+
+    ghost_tick_counter++;
+    check_collisions(game_state);
+}

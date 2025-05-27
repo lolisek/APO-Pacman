@@ -5,8 +5,8 @@
 
 typedef struct
 {
-    int16_t x;
-    int16_t y;
+    float x; // Changed from int to float
+    float y; // Changed from int to float
 } Vector2D;
 
 // Utility functions

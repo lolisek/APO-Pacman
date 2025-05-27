@@ -12,7 +12,8 @@
 #define SCREEN_WIDTH 480
 #define SCREEN_HEIGHT 320
 
-#define FRAME_DURATION_MS 16 // 60 FPS
+#define FRAME_DURATION_MS 30 // 30 FPS (increased from 16)
+#define GAME_LOGIC_INTERVAL_MS 300
 
 // --- Map configuration ---
 #define NUM_TILES_X 23
@@ -27,7 +28,7 @@
 #define PACMAN_SPEED 1
 #define GHOST_SPEED 1
 
-#define FRIGHTENED_MODE_DURATION 7000 // milliseconds
+#define FRIGHTENED_MODE_DURATION 250
 #define FRIGHTENED_GHOST_SPEED 0.5    // Reduced speed during frightened mode
 #define SCATTER_MODE_DURATION 7    // seconds
 #define GHOST_MODE_DURATION 20     // seconds

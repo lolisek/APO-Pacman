@@ -83,6 +83,11 @@ int main(int argc, char *argv[]) {
             {
                 // Start game
                 printf("Starting game...\n");
+
+                // Reset the game state before starting
+                GameState game_state;
+                init_game_state(&game_state);
+
                 run_game_loop(menu.framebuffer);
             }
             else if (menu.selected == 1)

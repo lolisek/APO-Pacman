@@ -185,8 +185,8 @@ void render_pacman(const Entity *pacman, uint16_t *fb, int animation_frame, int 
                                ? pacman_textures[direction_index]
                                : pacman_textures[4]; // Closed mouth
 
-    int x = offset_x + pacman->position.x * TILE_SIZE;
-    int y = offset_y + pacman->position.y * TILE_SIZE;
+    int x = offset_x + (int)(pacman->position.x * TILE_SIZE);
+    int y = offset_y + (int)(pacman->position.y * TILE_SIZE);
 
     if (texture)
         draw_ppm_image(fb, x, y, texture);
@@ -194,29 +194,21 @@ void render_pacman(const Entity *pacman, uint16_t *fb, int animation_frame, int 
 
 void render_ghost(const Entity *ghost, uint16_t *fb, int animation_frame, int offset_x, int offset_y)
 {
-    int x = offset_x + ghost->position.x * TILE_SIZE;
-    int y = offset_y + ghost->position.y * TILE_SIZE;
+    int x = offset_x + (int)(ghost->position.x * TILE_SIZE);
+    int y = offset_y + (int)(ghost->position.y * TILE_SIZE);
 
     ppm_image_t *texture = NULL;
 
     if (ghost->specific.ghost.mode == GHOST_MODE_EATEN)
     {
-        // Render only the eyes when the ghost is eaten
         texture = eaten_ghost_texture;
-    }
-    else if (ghost->specific.ghost.waiting_timer > 0)
-    {
-        // Render the ghost as stationary while waiting
-        texture = ghost_red_textures[0]; // Example: Use the red ghost texture
     }
     else if (ghost->specific.ghost.mode == GHOST_MODE_FRIGHTENED)
     {
-        // Render the vulnerable ghost texture
         texture = vulnerable_ghost_texture;
     }
     else
     {
-        // Render the ghost's normal texture based on its type and direction
         switch (ghost->specific.ghost.type)
         {
         case GHOST_TYPE_BLINKY:

@@ -40,4 +40,12 @@ void handle_input(GameState *gamestate, bool *running)
 
         accumulated_change -= step * KNOB_CLICKS_PER_TURN * PACMAN_KNOB_SENSITIVITY;
     }
+
+    // Check for exit input (blue knob press)
+    if (blue_knob_is_pressed())
+    {
+        LOG_INFO("Exit input detected. Exiting game...");
+        *running = false; // Set running to false to exit the game loop
+        return;
+    }
 }

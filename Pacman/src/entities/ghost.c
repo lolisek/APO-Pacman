@@ -161,8 +161,6 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     GameState *game_state = (GameState *)passed_gamestate;
     Ghost *ghost = &entity->specific.ghost;
 
-    LOG_DEBUG("Updating Ghost...");
-    LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
     LOG_DEBUG("Ghost mode: %d", ghost->mode);
 
     if (ghost->mode == GHOST_MODE_FRIGHTENED)
@@ -174,13 +172,35 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
         entity->speed = GHOST_SPEED; // Reset to normal speed
     }
 
+    // Handle ghost movement
+    Vector2D next_position = {
+        entity->position.x + entity->direction.x * entity->speed,
+        entity->position.y + entity->direction.y * entity->speed};
+
+    if (map_is_walkable(&game_state->map, (int)next_position.x, (int)next_position.y, ENTITY_TYPE_GHOST))
+    {
+        entity->position = next_position;
+    }
+    else
+    {
+        // Recalculate direction if blocked
+        entity->direction = get_next_direction_towards_target(
+            entity->position,
+            ghost->target_tile,
+            &game_state->map,
+            entity->direction,
+            &ghost->navigation,
+            ghost);
+    }
+
     if (ghost->mode == GHOST_MODE_EATEN)
     {
         // Teleport ghost to spawn point
         entity->position = ghost->starting_position;
-        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME / FRAME_DURATION_MS; // Set wait time
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME;                     // Set wait time
         ghost->mode = GHOST_MODE_EXITING;                                 // Set mode to exiting
         LOG_DEBUG("Ghost teleported to spawn point at (%d, %d).", ghost->starting_position.x, ghost->starting_position.y);
+        exit(0);
         return;
     }
 

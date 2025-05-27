@@ -47,7 +47,7 @@
      * @brief Update the game state.
      * @param game_state Pointer to the game state to update.
      */
-    void game_state_update(GameState *game_state);
+    extern void update_game_state(GameState *game_state);
 
     /**
      * @brief Update the modes of the ghosts.

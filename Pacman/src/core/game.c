@@ -4,173 +4,80 @@
 #include "../include/core/input.h"
 #include "../include/utils/logger.h"
 #include "../include/gui/display_scoreboard.h"
-#include "../include/utils/constants.h"     // Add this include for get_resource_path
-#include "../include/gui/custom_keyboard.h" // <-- Add this line
+#include "../include/utils/constants.h"
+#include "../include/gui/custom_keyboard.h"
+#include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
 
-void run_game_loop(uint16_t *shared_fb)
+// Shared game state and mutex
+static GameState game_state;
+static pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
+static bool running = true;
+
+void *game_loop(void *arg)
 {
-    // Create a dedicated game frame buffer
-    uint16_t game_fb[LCD_SIZE];
-
-    GameState game_state;
-    init_game_state(&game_state);
-    render_init(); // Ensure this initializes LCD if needed
-
-    parlcd_hx8357_init((unsigned char *)shared_fb);
-
-    bool running = true;
-
-    int tick_counter = 0;
-    const int GAME_TICK_INTERVAL = 3; // Number of frames per game tick (increase for slower game logic)
-
     while (running)
     {
         uint64_t frame_start_time = timer_get_global_elapsed_ms();
 
-        if (game_state.game_over)
-        {
-            // Handle game over state
-            printf("Game Over! Final Score: %d\n", game_state.score);
+        pthread_mutex_lock(&game_state_mutex);
+        update_game_state(&game_state);
+        pthread_mutex_unlock(&game_state_mutex);
 
-            char gameover_path[256];
-            get_resource_path(gameover_path, sizeof(gameover_path), "gameover.ppm");
-            ppm_image_t *game_over = load_ppm(gameover_path);
-            if (!game_over)
-            {
-                fprintf(stderr, "Failed to load game over image\n");
-                break;
-            }
-
-            memcpy(game_fb, game_over->pixels, game_over->width * game_over->height * sizeof(uint16_t));
-            lcd_update(game_fb);
-
-            while (1)
-            {
-                if (red_knob_is_pressed())
-                {
-                    char *name = handle_keyboard_input(game_fb, &font_winFreeSystem14x16);
-                    if (name)
-                    {
-                        int saved = save_score(name, game_state.score);
-                        if (saved == 0)
-                        {
-                            printf("Score saved successfully!\n");
-                        }
-                        else
-                        {
-                            printf("Failed to save score.\n");
-                        }
-                        free(name);
-                    }
-                    break; // Exit game over loop
-                }
-                if (blue_knob_is_pressed())
-                {
-                    running = false; // Exit the game loop
-                    break;
-                }
-            }
-            break;
-        }
-
-        // Clear game frame buffer
-        memset(game_fb, 0, sizeof(game_fb));
-
-        handle_input(&game_state, &running);
-
-        // Only update game state every N frames (slower ticks, but high FPS)
-        if (tick_counter % GAME_TICK_INTERVAL == 0)
-        {
-            update_game_state(&game_state);
-        }
-        render(&game_state, game_fb);
-
-        // Copy to shared frame buffer if needed
-        memcpy(shared_fb, game_fb, sizeof(game_fb));
-
-        lcd_update(shared_fb);
-
-        // Check for blue button press to exit the game
-        if (blue_knob_is_pressed())
-        {
-            printf("Exiting game...\n");
-            running = false;
-        }
-
-        // Frame rate control
         uint64_t frame_end_time = timer_get_global_elapsed_ms();
         uint64_t frame_elapsed_time = frame_end_time - frame_start_time;
 
-        if (frame_elapsed_time < FRAME_DURATION_MS)
+        if (frame_elapsed_time < GAME_LOGIC_INTERVAL_MS)
         {
-            timer_sleep_ms(FRAME_DURATION_MS - frame_elapsed_time);
+            timer_sleep_ms(GAME_LOGIC_INTERVAL_MS - frame_elapsed_time);
         }
-
-        tick_counter++;
     }
-
-    // Show scoreboard and allow player to input their name
-    scoreboard_t scoreboard;
-    init_scoreboard(&scoreboard);
-    load_scores(&scoreboard);
-
-    draw_scoreboard(&scoreboard, shared_fb, &font_winFreeSystem14x16);
-    lcd_update(shared_fb);
-
-    char *player_name = handle_keyboard_input(shared_fb, &font_winFreeSystem14x16);
-    if (player_name)
-    {
-        int saved = save_score(player_name, game_state.score);
-        if (saved == 0)
-        {
-            printf("Score saved successfully!\n");
-        }
-        else
-        {
-            printf("Failed to save score.\n");
-        }
-        free(player_name);
-    }
-
-    cleanup_game(&game_state);
+    return NULL;
 }
 
-void update_game_state(GameState *game_state)
+void *render_loop(void *arg)
 {
-    static int ghost_tick_counter = 0; // Counter to control ghost movement speed
+    uint16_t *shared_fb = (uint16_t *)arg;
+    uint16_t render_fb[LCD_SIZE];
 
-    if (game_state->frightened_timer > 0)
+    while (running)
     {
-        game_state->frightened_timer--;
-        LOG_DEBUG("Frightened timer: %d", game_state->frightened_timer);
-        if (game_state->frightened_timer == 0)
-        {
-            LOG_INFO("Frightened mode ended.");
-        }
+        pthread_mutex_lock(&game_state_mutex);
+        render(&game_state, render_fb);
+        pthread_mutex_unlock(&game_state_mutex);
+
+        memcpy(shared_fb, render_fb, sizeof(render_fb));
+        lcd_update(shared_fb);
+
+        timer_sleep_ms(FRAME_DURATION_MS); // Maintain 30 FPS
+    }
+    return NULL;
+}
+
+void run_game_loop(uint16_t *shared_fb)
+{
+    // Initialize game state and renderer
+    init_game_state(&game_state);
+    render_init();
+
+    // Start game and render threads
+    pthread_t game_thread, render_thread;
+    pthread_create(&game_thread, NULL, game_loop, NULL);
+    pthread_create(&render_thread, NULL, render_loop, shared_fb);
+
+    // Handle input in the main thread
+    while (running)
+    {
+        handle_input(&game_state, &running);
     }
 
-    // Update Pac-Man
-    entity_update(&game_state->pacman, game_state);
+    // Wait for threads to finish
+    running = false; // Ensure threads exit cleanly
+    pthread_join(game_thread, NULL);
+    pthread_join(render_thread, NULL);
 
-    // Update ghost modes
-    update_ghost_modes(game_state);
-
-    // Update ghosts only every N ticks
-    const int GHOST_MOVEMENT_INTERVAL = 2; // Adjust this value to slow down ghosts
-    if (ghost_tick_counter % GHOST_MOVEMENT_INTERVAL == 0)
-    {
-        for (int i = 0; i < NUM_GHOSTS; i++)
-        {
-            entity_update(&game_state->ghosts[i], game_state);
-        }
-    }
-
-    ghost_tick_counter++;
-
-    // Check for collisions
-    check_collisions(game_state);
+    cleanup_game(&game_state);
 }
 
 void check_collisions(GameState *game_state)
