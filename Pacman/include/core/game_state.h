@@ -50,13 +50,13 @@
     extern void update_game_state(GameState *game_state);
 
     /**
-     * @brief Update the modes of the ghosts.
-     * @param game_state Pointer to the game state containing the ghosts.
+     * @brief Checks for collisions (Pac-Man vs ghosts, etc).
+     * @param game_state Pointer to the game state.
      */
-    void update_ghost_modes(GameState *game_state);
+    void check_collisions(GameState *game_state);
 
 #ifdef __cplusplus
-}
+    }
 #endif
 
 #endif // APO_PACMAN_GAME_STATE_H

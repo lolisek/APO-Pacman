@@ -82,53 +82,21 @@ void cleanup_game(GameState *game_state)
     LOG_INFO("Game state cleanup complete.");
 }
 
-void update_ghost_modes(GameState *game_state)
-{
-    for (int i = 0; i < NUM_GHOSTS; i++)
-    {
-        Ghost *ghost = &game_state->ghosts[i].specific.ghost;
-
-        if (game_state->frightened_timer > 0)
-        {
-            ghost->mode = GHOST_MODE_FRIGHTENED;
-        }
-        else if (ghost->mode == GHOST_MODE_FRIGHTENED)
-        {
-            // Reset to normal mode after frightened state ends
-            ghost->mode = GHOST_MODE_SCATTER;
-        }
-        else
-        {
-            // Use the global timer to alternate between SCATTER and CHASE modes
-            uint64_t elapsed_time = timer_get_global_elapsed_ms();
-            if ((elapsed_time / (SCATTER_MODE_DURATION * 1000)) % 2 == 0)
-            {
-                ghost->mode = GHOST_MODE_SCATTER;
-            }
-            else
-            {
-                ghost->mode = GHOST_MODE_CHASE;
-            }
-        }
-    }
-}
-
 void update_game_state(GameState *game_state)
 {
     static int ghost_tick_counter = 0;
 
+    // Decrement the global frightened timer
     if (game_state->frightened_timer > 0)
     {
         game_state->frightened_timer--;
         if (game_state->frightened_timer == 0)
         {
-            LOG_INFO("Frightened mode ended.");
+            LOG_INFO("Global frightened mode ended.");
         }
     }
 
     entity_update(&game_state->pacman, game_state);
-
-    update_ghost_modes(game_state);
 
     const int GHOST_MOVEMENT_INTERVAL = 2;
     if (ghost_tick_counter % GHOST_MOVEMENT_INTERVAL == 0)
@@ -141,4 +109,57 @@ void update_game_state(GameState *game_state)
 
     ghost_tick_counter++;
     check_collisions(game_state);
+}
+
+void check_collisions(GameState *game_state)
+{
+    const float COLLISION_TOLERANCE = 0.5f; // Allow a small tolerance for collision detection
+
+    // Check for collisions between Pac-Man and ghosts
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
+        float dx = fabsf(game_state->ghosts[i].position.x - game_state->pacman.position.x);
+        float dy = fabsf(game_state->ghosts[i].position.y - game_state->pacman.position.y);
+
+        if (dx <= COLLISION_TOLERANCE && dy <= COLLISION_TOLERANCE)
+        {
+            // Handle collision with ghost
+            Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+            if (ghost->mode == GHOST_MODE_FRIGHTENED)
+            {
+                // Ghost is frightened, Pac-Man eats the ghost
+                game_state->score += 200;                     // Increase score
+                ghost->mode = GHOST_MODE_EATEN;               // Change ghost mode to eaten
+                ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
+                ghost->frightened_timer = 0;                  // Reset frightened timer
+                LOG_INFO("Pac-Man ate a ghost! Score: %d", game_state->score);
+            }
+            else if (ghost->mode != GHOST_MODE_EATEN)
+            {
+                // Pac-Man loses a life
+                game_state->lives--;
+                LOG_INFO("Pac-Man hit by a ghost! Lives remaining: %d", game_state->lives);
+                if (game_state->lives <= 0)
+                {
+                    game_state->game_over = true; // Game over
+                    LOG_INFO("Game Over!");
+                }
+
+                // Reset Pac-Man's position
+                game_state->pacman.position.x = PACMAN_START_X;
+                game_state->pacman.position.y = PACMAN_START_Y;
+
+                // Reset ghost positions
+                for (int j = 0; j < NUM_GHOSTS; j++)
+                {
+                    game_state->ghosts[j].position.x = game_state->ghosts[j].specific.ghost.starting_position.x;
+                    game_state->ghosts[j].position.y = game_state->ghosts[j].specific.ghost.starting_position.y;
+                    game_state->ghosts[j].specific.ghost.mode = GHOST_MODE_EXITING; // Reset ghost mode to exiting
+                }
+
+                // Reset frightened timer
+                game_state->frightened_timer = 0;
+            }
+        }
+    }
 }

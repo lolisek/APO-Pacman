@@ -15,7 +15,6 @@ void handle_input(GameState *gamestate, bool *running)
     static int accumulated_change = 0;
 
     uint8_t current_knob = get_red_knob_rotation();
-    LOG_DEBUG("Current knob position: %d, Last knob position: %d", current_knob, last_knob_pos);
     int delta = (int)current_knob - (int)last_knob_pos;
 
     // Handle knob wrap-around (assuming 8-bit value)

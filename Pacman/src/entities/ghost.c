@@ -11,41 +11,47 @@ void ghost_init(Entity *entity, GhostType type)
 {
     LOG_INFO("Initializing Ghost...");
     Ghost *ghost = &entity->specific.ghost;
-    ghost->mode = GHOST_MODE_SCATTER;
+    ghost->mode = GHOST_MODE_EXITING;
     ghost->type = type;
     ghost->frightened_timer = 0;
     ghost->waiting_timer = 0; // Initialize waiting timer
 
-    entity_init(entity, ENTITY_TYPE_GHOST, ghost_update, ghost_render);
+    entity_init(entity, ENTITY_TYPE_GHOST, ghost_update);
     entity->direction = (Vector2D){0, 0};
     entity->speed = GHOST_SPEED;
 
     ghost->navigation.last_junction_pos = (Vector2D){-1, -1};
     ghost->navigation.last_junction_decision = (Vector2D){0, 0};
 
+    // Set the initial position and starting position based on ghost type
     switch (type)
     {
     case GHOST_TYPE_BLINKY: // Red ghost
-        entity->position = (Vector2D){GHOST_BLINKY_START_X, GHOST_BLINKY_START_Y};
+        entity->position = (Vector2D){(float)GHOST_BLINKY_START_X, (float)GHOST_BLINKY_START_Y};
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 4; // Set wait time for Blinky
         break;
     case GHOST_TYPE_PINKY: // Pink ghost
-        entity->position = (Vector2D){GHOST_PINKY_START_X, GHOST_PINKY_START_Y};
+        entity->position = (Vector2D){(float)GHOST_PINKY_START_X, (float)GHOST_PINKY_START_Y};
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 4; // Set wait time for Blinky
+
         break;
     case GHOST_TYPE_INKY: // Cyan ghost
-        entity->position = (Vector2D){GHOST_INKY_START_X, GHOST_INKY_START_Y};
+        entity->position = (Vector2D){(float)GHOST_INKY_START_X, (float)GHOST_INKY_START_Y};
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 6; // Set wait time for Blinky
+
         break;
     case GHOST_TYPE_CLYDE: // Orange ghost
-        entity->position = (Vector2D){GHOST_CLYDE_START_X, GHOST_CLYDE_START_Y};
+        entity->position = (Vector2D){(float)GHOST_CLYDE_START_X, (float)GHOST_CLYDE_START_Y};
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 8; // Set wait time for Blinky
+
         break;
     default:
-        printf("Unknown ghost type: %d\n", type);
-        exit(0);
-        break;
+        LOG_ERROR("Unknown ghost type: %d", type);
+        exit(1);
     }
-    ghost->starting_position = entity->position;
 
-    LOG_DEBUG("Ghost initialized at position (%d, %d) with type %d",
-              entity->position.x, entity->position.y, ghost->type);
+    // Explicitly set the starting position
+    ghost->starting_position = entity->position;
 }
 
 Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
@@ -161,65 +167,50 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     GameState *game_state = (GameState *)passed_gamestate;
     Ghost *ghost = &entity->specific.ghost;
 
-    LOG_DEBUG("Ghost mode: %d", ghost->mode);
+    LOG_DEBUG("Ghost index: %ld, type: %d, mode: %d, position: (%f, %f), waiting_timer: %d",
+              game_state->ghosts, ghost->type, ghost->mode, entity->position.x, entity->position.y, ghost->waiting_timer);
 
+    // Handle frightened mode
     if (ghost->mode == GHOST_MODE_FRIGHTENED)
     {
-        entity->speed = FRIGHTENED_GHOST_SPEED; // Reduce speed during frightened mode
-    }
-    else
-    {
-        entity->speed = GHOST_SPEED; // Reset to normal speed
+        if (ghost->frightened_timer > 0)
+        {
+            ghost->frightened_timer--;
+        }
+        else
+        {
+            ghost->mode = GHOST_MODE_SCATTER; // Reset to normal mode after frightened state ends
+            LOG_DEBUG("Frightened mode ended for ghost index %ld, type %d.", game_state->ghosts, ghost->type);
+        }
     }
 
     // Handle ghost movement
-    Vector2D next_position = {
-        entity->position.x + entity->direction.x * entity->speed,
-        entity->position.y + entity->direction.y * entity->speed};
-
-    if (map_is_walkable(&game_state->map, (int)next_position.x, (int)next_position.y, ENTITY_TYPE_GHOST))
-    {
-        entity->position = next_position;
-    }
-    else
-    {
-        // Recalculate direction if blocked
-        entity->direction = get_next_direction_towards_target(
-            entity->position,
-            ghost->target_tile,
-            &game_state->map,
-            entity->direction,
-            &ghost->navigation,
-            ghost);
-    }
-
     if (ghost->mode == GHOST_MODE_EATEN)
     {
         // Teleport ghost to spawn point
         entity->position = ghost->starting_position;
-        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME;                     // Set wait time
-        ghost->mode = GHOST_MODE_EXITING;                                 // Set mode to exiting
-        LOG_DEBUG("Ghost teleported to spawn point at (%d, %d).", ghost->starting_position.x, ghost->starting_position.y);
-        exit(0);
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
+        ghost->mode = GHOST_MODE_EXITING;             // Set mode to exiting
+        LOG_DEBUG("Ghost index %ld teleported to spawn point at (%f, %f).", game_state->ghosts, ghost->starting_position.x, ghost->starting_position.y);
         return;
     }
 
-    // Handle exiting the spawn area
     if (ghost->mode == GHOST_MODE_EXITING)
     {
         if (ghost->waiting_timer > 0)
         {
+            LOG_DEBUG("Ghost index %ld waiting to exit spawn area. Remaining time: %d ms", game_state->ghosts, ghost->waiting_timer);
             ghost->waiting_timer--; // Wait before exiting
             return;
         }
 
         // Move toward the gate to exit the spawn area
-        Vector2D gate_position = {NUM_TILES_X / 2, NUM_TILES_Y / 2 - 1}; // Adjust to your gate position
+        Vector2D gate_position = {(float)GHOST_SPAWN_GATE_X, (float)GHOST_SPAWN_GATE_Y};
 
         Vector2D next_dir = get_next_direction_towards_target(
             entity->position,
             gate_position,
-            (struct Map *)&game_state->map,
+            &game_state->map,
             entity->direction,
             &ghost->navigation,
             ghost);
@@ -228,40 +219,48 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
             entity->position.x + next_dir.x,
             entity->position.y + next_dir.y};
 
-        if (map_is_walkable(&game_state->map, next_pos.x, next_pos.y, ENTITY_TYPE_GHOST))
+        if (map_is_walkable(&game_state->map, (int)next_pos.x, (int)next_pos.y, ENTITY_TYPE_GHOST))
         {
             entity->position = next_pos;
             entity->direction = next_dir;
+            LOG_DEBUG("Ghost index %ld moved to (%f, %f).", game_state->ghosts, entity->position.x, entity->position.y);
+        }
+        else
+        {
+            LOG_DEBUG("Ghost index %ld blocked at (%f, %f). Cannot exit spawn area.", game_state->ghosts, entity->position.x, entity->position.y);
+            return;
         }
 
         // Check if ghost exited the spawn area
-        if (entity->position.x == gate_position.x && entity->position.y == gate_position.y)
+        if ((int)entity->position.x == (int)gate_position.x && (int)entity->position.y == (int)gate_position.y)
         {
             ghost->mode = GHOST_MODE_SCATTER; // Set to SCATTER mode after exiting
-            LOG_DEBUG("Ghost exited the spawn area and is now in SCATTER mode.");
         }
 
         return;
     }
 
-    if (ghost->waiting_timer > 0)
+    // Alternate between SCATTER and CHASE modes based on the global timer
+    if (ghost->mode != GHOST_MODE_FRIGHTENED && ghost->mode != GHOST_MODE_EATEN)
     {
-        // Decrease the waiting timer
-        ghost->waiting_timer--;
-        if (ghost->waiting_timer == 0)
+        uint64_t elapsed_time = timer_get_global_elapsed_ms();
+        if ((elapsed_time / (SCATTER_MODE_DURATION * 1000)) % 2 == 0)
         {
-            LOG_DEBUG("Ghost finished waiting and can now move.");
+            ghost->mode = GHOST_MODE_SCATTER;
         }
-        return; // Ghost stays in place while waiting
+        else
+        {
+            ghost->mode = GHOST_MODE_CHASE;
+        }
     }
 
-    // Handle other ghost modes (CHASE, SCATTER, FRIGHTENED)
+    // Handle other ghost modes (CHASE, SCATTER)
     ghost->target_tile = calculate_target_tile(ghost, game_state, entity);
 
     Vector2D next_dir = get_next_direction_towards_target(
         entity->position,
         ghost->target_tile,
-        (struct Map *)&game_state->map,
+        &game_state->map,
         entity->direction,
         &ghost->navigation,
         ghost);
@@ -270,7 +269,7 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
         entity->position.x + next_dir.x,
         entity->position.y + next_dir.y};
 
-    if (map_is_walkable(&game_state->map, next_pos.x, next_pos.y, ENTITY_TYPE_GHOST))
+    if (map_is_walkable(&game_state->map, (int)next_pos.x, (int)next_pos.y, ENTITY_TYPE_GHOST))
     {
         entity->position = next_pos;
         entity->direction = next_dir;
@@ -355,14 +354,4 @@ Vector2D calculate_target_tile(Ghost *ghost, GameState *state, Entity *ghost_ent
     }
 
     return pacman_pos;
-}
-
-void ghost_render(void *specific)
-{
-    Entity *entity = (Entity *)specific;
-    Ghost *ghost = &entity->specific.ghost;
-
-    LOG_DEBUG("Rendering Ghost...");
-    LOG_DEBUG("Ghost position: (%d, %d)", entity->position.x, entity->position.y);
-    LOG_DEBUG("Ghost mode: %d", ghost->mode);
 }

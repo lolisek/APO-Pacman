@@ -12,7 +12,7 @@ void pacman_init(Entity *entity, Vector2D position)
     // Access the embedded Pacman structure directly
     Pacman *pacman = &entity->specific.pacman;
     pacman->lives = PACMAN_START_LIVES;
-    entity_init(entity, ENTITY_TYPE_PACMAN, pacman_update, pacman_render);
+    entity_init(entity, ENTITY_TYPE_PACMAN, pacman_update);
     entity->position = position;
     entity->direction = (Vector2D){0, 0};
     entity->speed = PACMAN_SPEED;
@@ -34,6 +34,10 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     {
         // Apply the buffered direction
         entity->direction = pacman->buffered_direction;
+    }
+    else
+    {
+        LOG_DEBUG("Buffered direction blocked. Falling back to current direction.");
     }
 
     // Predict Pac-Man's next position based on the current direction
@@ -59,18 +63,25 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     {
         if (game_state->map.tiles[tile_y][tile_x].type == TILE_PELLET)
         {
-            game_state->score += 10;                                 // Increase score
+            game_state->score += PELLET_SCORE;                       // Use constant for pellet score
             game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the pellet from the map
         }
         else if (game_state->map.tiles[tile_y][tile_x].type == TILE_POWER_PELLET)
         {
-            game_state->score += 50;                                 // Increase score
+            game_state->score += POWER_PELLET_SCORE;                 // Use constant for power pellet score
             game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the power pellet
             game_state->frightened_timer = FRIGHTENED_MODE_DURATION; // Set frightened mode duration
+
+            // Set all ghosts to frightened mode
+            for (int i = 0; i < NUM_GHOSTS; i++)
+            {
+                Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+                if (ghost->mode != GHOST_MODE_EATEN) // Do not affect eaten ghosts
+                {
+                    ghost->mode = GHOST_MODE_FRIGHTENED;
+                    ghost->frightened_timer = FRIGHTENED_MODE_DURATION;
+                }
+            }
         }
     }
-}
-
-void pacman_render(void *specific)
-{
 }

@@ -33,8 +33,7 @@ typedef struct Entity
 } Entity;
 
 // Function prototypes
-void entity_init(Entity *entity, EntityType type, void (*update)(void *specific, struct GameState *gamestate), void (*render)(void *specific));
+void entity_init(Entity *entity, EntityType type, void (*update)(void *specific, struct GameState *gamestate));
 void entity_update(Entity *entity, struct GameState *gamestate);
-void entity_render(Entity *entity);
 
 #endif // APO_PACMAN_ENTITY_H
