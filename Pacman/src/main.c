@@ -22,9 +22,7 @@
 #include <unistd.h>
 
 #include "../include/gui/ppm_loader.h"
-#include "../include/gui/main_menu.h"
 #include "../include/gui/display_scoreboard.h"
-#include "../include/core/game_initializer.h"
 #include "../include/utils/timer.h"
 #include "../include/microzed/serialize_lock.h"
 
@@ -43,7 +41,8 @@ int main(int argc, char *argv[]) {
 
     mzapo_setup();
 
-    // Initialize and run the main menu
+    // Loop to allow restarting the game after returning to the menu
+
     run_main_menu();
 
     serialize_unlock();

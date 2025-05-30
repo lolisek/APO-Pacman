@@ -13,7 +13,7 @@
 // Shared game state and mutex
 static GameState game_state;
 static pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
-static bool running = true;
+static bool running;
 
 void *game_loop(void *arg)
 {
@@ -92,6 +92,8 @@ void run_game_loop(uint16_t *shared_fb)
     // Initialize game state and renderer
     init_game_state(&game_state);
     render_init();
+
+    running = true; // Set running to true to start the game loop
 
     // Start game and render threads
     pthread_t game_thread, render_thread;

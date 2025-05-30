@@ -1,6 +1,5 @@
 #include "../../include/gui/main_menu.h"
 #include "../../include/gui/display_scoreboard.h"
-#include "../../include/core/game_initializer.h"
 #include "../../include/core/game.h"
 #include "../../include/utils/timer.h"
 #include "../../include/microzed/mzapo_parlcd.h"
@@ -164,8 +163,9 @@ void run_main_menu()
                 // Start game
                 printf("Starting game...\n");
                 GameState game_state;
-                initialize_game_state(&game_state);
                 run_game_loop(menu.framebuffer);
+                draw_menu(&menu); // Redraw menu after returning from the game
+                lcd_update(menu.framebuffer);
             }
             else if (menu.selected == 1)
             {

@@ -14,7 +14,6 @@
 #include "../microzed/mzapo_parlcd.h"
 #include "../utils/constants.h"
 #include "../gui/display_scoreboard.h"
-#include "../core/game_initializer.h"
 
 #define ARROW_SIZE 24
 #define ARROW_SHAFT_WIDTH 6
