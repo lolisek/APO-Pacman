@@ -57,8 +57,8 @@
 
 #define GHOST_EATEN_WAIT_TIME 2 // milliseconds
 
-#define GHOST_SPAWN_GATE_X 11.0f // Adjust to match the actual gate position in the map
-#define GHOST_SPAWN_GATE_Y 9.0f  // Adjust to match the actual gate position in the map
+#define GHOST_SPAWN_GATE_X 11.0f // Gate position where ghosts exit the spawn area
+#define GHOST_SPAWN_GATE_Y 9.0f  // Gate position where ghosts exit the spawn area
 
 // --- Input configuration ---
 #define PACMAN_KNOB_SENSITIVITY 1

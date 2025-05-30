@@ -191,11 +191,11 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     // Handle ghost movement
     if (ghost->mode == GHOST_MODE_EATEN)
     {
-        // Teleport ghost to spawn point
+        // Teleport ghost to its starting position
         entity->position = ghost->starting_position;
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
         ghost->mode = GHOST_MODE_EXITING;             // Set mode to exiting
-        LOG_DEBUG("Ghost index %ld teleported to spawn point at (%f, %f).", game_state->ghosts, ghost->starting_position.x, ghost->starting_position.y);
+        LOG_DEBUG("Ghost index %ld teleported to starting position at (%f, %f).", game_state->ghosts, ghost->starting_position.x, ghost->starting_position.y);
         return;
     }
 
@@ -208,39 +208,10 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
             return;
         }
 
-        // Move toward the gate to exit the spawn area
-        Vector2D gate_position = {(float)GHOST_SPAWN_GATE_X, (float)GHOST_SPAWN_GATE_Y};
-
-        Vector2D next_dir = get_next_direction_towards_target(
-            entity->position,
-            gate_position,
-            &game_state->map,
-            entity->direction,
-            &ghost->navigation,
-            ghost);
-
-        Vector2D next_pos = {
-            entity->position.x + next_dir.x,
-            entity->position.y + next_dir.y};
-
-        if (map_is_walkable(&game_state->map, (int)next_pos.x, (int)next_pos.y, ENTITY_TYPE_GHOST))
-        {
-            entity->position = next_pos;
-            entity->direction = next_dir;
-            LOG_DEBUG("Ghost index %ld moved to (%f, %f).", game_state->ghosts, entity->position.x, entity->position.y);
-        }
-        else
-        {
-            LOG_DEBUG("Ghost index %ld blocked at (%f, %f). Cannot exit spawn area.", game_state->ghosts, entity->position.x, entity->position.y);
-            return;
-        }
-
-        // Check if ghost exited the spawn area
-        if ((int)entity->position.x == (int)gate_position.x && (int)entity->position.y == (int)gate_position.y)
-        {
-            ghost->mode = GHOST_MODE_SCATTER; // Set to SCATTER mode after exiting
-        }
-
+        // Teleport ghost to the gate position after waiting
+        entity->position = (Vector2D){(float)GHOST_SPAWN_GATE_X, (float)GHOST_SPAWN_GATE_Y};
+        ghost->mode = GHOST_MODE_SCATTER; // Transition to SCATTER mode after exiting
+        LOG_DEBUG("Ghost exited spawn area and teleported to gate position (%f, %f).", entity->position.x, entity->position.y);
         return;
     }
 
