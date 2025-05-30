@@ -7,6 +7,7 @@
 #include "../include/utils/constants.h"
 #include "../include/gui/custom_keyboard.h"
 #include "../include/gui/resource_manager.h"
+#include "../include/utils/led_manager.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -18,40 +19,14 @@ static bool running;
 
 void *game_loop(void *arg)
 {
+
     while (running)
     {
         uint64_t frame_start_time = timer_get_global_elapsed_ms();
 
         pthread_mutex_lock(&game_state_mutex);
         update_game_state(&game_state);
-        int total_leds = 32; // Assuming 8 LEDs
-
-        // LED Animation Logic
-        if (game_state.frightened_timer > 0)
-        {
-            // Frightened state: Use LEDs as a timer
-            int leds_on = (game_state.frightened_timer * total_leds) / FRIGHTENED_MODE_DURATION;
-
-            LOG_DEBUG("Frightened mode active. Remaining time: %d ms, LEDs on: %d", game_state.frightened_timer, leds_on);
-
-            // Turn on LEDs proportional to the remaining frightened time
-            for (int i = 0; i < total_leds; i++)
-            {
-                if (i < leds_on)
-                    set_led_on(i); // Turn on LED
-                else
-                    set_led_off(i); // Turn off LED
-            }
-        }
-        else
-        {
-            // Normal state: Make all LEDs glow red
-            for (int i = 0; i < total_leds; i++) // Assuming 8 LEDs
-            {
-                set_led_on(i);
-            }
-        }
-
+        update_leds(&game_state); // Refactored LED logic
         pthread_mutex_unlock(&game_state_mutex);
 
         uint64_t frame_end_time = timer_get_global_elapsed_ms();

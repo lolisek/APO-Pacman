@@ -31,7 +31,7 @@
 #define PACMAN_SPEED 1
 #define GHOST_SPEED 1
 
-#define FRIGHTENED_MODE_DURATION 10
+#define FRIGHTENED_MODE_DURATION 45
 #define FRIGHTENED_GHOST_SPEED 0.5    // Reduced speed during frightened mode
 #define SCATTER_MODE_DURATION 3       // seconds
 #define GHOST_MODE_DURATION 20     // seconds

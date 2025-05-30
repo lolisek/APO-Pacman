@@ -94,6 +94,16 @@ void update_game_state(GameState *game_state)
         {
             LOG_INFO("Global frightened mode ended.");
         }
+
+        // Synchronize all ghost timers with the global timer
+        for (int i = 0; i < NUM_GHOSTS; i++)
+        {
+            Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+            if (ghost->mode == GHOST_MODE_FRIGHTENED)
+            {
+                ghost->frightened_timer = game_state->frightened_timer;
+            }
+        }
     }
 
     entity_update(&game_state->pacman, game_state);
@@ -131,7 +141,6 @@ void check_collisions(GameState *game_state)
                 game_state->score += 200;                     // Increase score
                 ghost->mode = GHOST_MODE_EATEN;               // Change ghost mode to eaten
                 ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
-                ghost->frightened_timer = 0;                  // Reset frightened timer
                 LOG_INFO("Pac-Man ate a ghost! Score: %d", game_state->score);
             }
             else if (ghost->mode != GHOST_MODE_EATEN)
