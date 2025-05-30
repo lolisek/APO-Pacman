@@ -1,5 +1,6 @@
 #include "../../include/gui/display_scoreboard.h"
 #include "../../include/utils/constants.h" // Add this include
+#include "../../include/gui/ppm_loader.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -176,4 +177,42 @@ int handle_scoreboard_input(scoreboard_t *sb)
         return 3; // Exit
 
     return 0;
+}
+
+void handle_scoreboard(scoreboard_t *sb, uint16_t *framebuffer)
+{
+    if (!sb)
+    {
+        fprintf(stderr, "DEBUG: handle_scoreboard called with NULL scoreboard pointer\n");
+        return;
+    }
+
+    draw_scoreboard(sb, framebuffer, &font_winFreeSystem14x16);
+    lcd_update(framebuffer);
+
+    while (1)
+    {
+        int sb_action = handle_scoreboard_input(sb);
+
+        if (sb_action == 3)
+        { // Exit scoreboard
+            fprintf(stderr, "DEBUG: Exiting scoreboard\n");
+            break;
+        }
+
+        if (sb_action == 1 || sb_action == 2)
+        {
+            scroll_scoreboard(sb, sb_action == 1 ? -1 : 1);
+            draw_scoreboard(sb, framebuffer, &font_winFreeSystem14x16);
+            lcd_update(framebuffer);
+            timer_sleep_ms(100);
+        }
+
+        timer_sleep_ms(10);
+    }
+
+    while (blue_knob_is_pressed())
+        timer_sleep_ms(10);
+
+    fprintf(stderr, "DEBUG: Scoreboard interaction ended\n");
 }

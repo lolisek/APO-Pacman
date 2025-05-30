@@ -1,7 +1,10 @@
 #include "../../include/gui/main_menu.h"
-#include "../../include/utils/constants.h"
-#include "../../include/microzed/mzapo_peri.h"
+#include "../../include/gui/display_scoreboard.h"
+#include "../../include/core/game_initializer.h"
+#include "../../include/core/game.h"
 #include "../../include/utils/timer.h"
+#include "../../include/microzed/mzapo_parlcd.h"
+#include <stdio.h>
 
 int handle_knob_rotation(int last_pos);
 
@@ -45,7 +48,8 @@ int handle_menu_input(menu_state_t *menu)
 
     if (change != 0)
     {
-        int new_position = menu->selected - change;
+        // Reverse the menu navigation direction
+        int new_position = menu->selected + change;
         new_position = (new_position % MENU_ITEMS + MENU_ITEMS) % MENU_ITEMS;
 
         menu->selected = new_position;
@@ -61,8 +65,6 @@ int handle_menu_input(menu_state_t *menu)
             last_press_time = current_time;
             return menu->selected + 2; // Return selection
         }
-        // Add debounce sleep to avoid rapid re-triggering
-        timer_sleep_ms(DEBOUNCE_DELAY_MS);
     }
 
     return 0;
@@ -125,5 +127,62 @@ void render_arrows(int selected, uint16_t *fb)
     default:
         fprintf(stderr, "Invalid menu selection\n");
         break;
+    }
+}
+
+void run_main_menu()
+{
+    menu_state_t menu;
+    init_menu(&menu);
+    draw_menu(&menu);
+    lcd_update(menu.framebuffer);
+
+    scoreboard_t sb;
+    init_scoreboard(&sb);
+    load_scores(&sb);
+
+    timer_init_global();
+
+    while (1)
+    {
+        int action = handle_menu_input(&menu);
+
+        if (action == 1 || menu.selected != menu.last_selected)
+        {
+            draw_menu(&menu);
+            lcd_update(menu.framebuffer);
+            menu.last_selected = menu.selected;
+            timer_sleep_ms(300);
+        }
+        else if (action >= 2)
+        {
+            menu.selected = action - 2;
+            printf("Selected: %s\n", menu_items[menu.selected]);
+
+            if (menu.selected == 0)
+            {
+                // Start game
+                printf("Starting game...\n");
+                GameState game_state;
+                initialize_game_state(&game_state);
+                run_game_loop(menu.framebuffer);
+            }
+            else if (menu.selected == 1)
+            {
+                // Show scoreboard
+                printf("Showing scoreboard...\n");
+                handle_scoreboard(&sb, menu.framebuffer);
+                draw_menu(&menu);
+                lcd_update(menu.framebuffer);
+            }
+            else if (menu.selected == 2)
+            {
+                // Exit menu
+                printf("Exiting...\n");
+                break;
+            }
+        }
+
+        timer_sleep_ms(INPUT_POLL_DELAY_US / 1000);
     }
 }

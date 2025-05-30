@@ -12,6 +12,9 @@
 #include "../microzed/mzapo_regs.h"
 #include "../microzed/mzapo_phys.h"
 #include "../microzed/mzapo_parlcd.h"
+#include "../utils/constants.h"
+#include "../gui/display_scoreboard.h"
+#include "../core/game_initializer.h"
 
 #define ARROW_SIZE 24
 #define ARROW_SHAFT_WIDTH 6
@@ -38,5 +41,9 @@ void draw_menu(menu_state_t *menu);
 int handle_menu_input(menu_state_t *menu);
 void render_arrows(int selected, uint16_t *fb);
 
+/**
+ * @brief Runs the main menu loop.
+ */
+void run_main_menu();
 
 #endif // MAIN_MENU_H

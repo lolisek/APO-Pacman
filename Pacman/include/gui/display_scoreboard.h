@@ -1,33 +1,34 @@
 #ifndef DISPLAY_SCOREBOARD_H
 #define DISPLAY_SCOREBOARD_H
 
-#include <stdio.h>
-#include <string.h>
+#include "../utils/constants.h"
 #include "../microzed/mzapo_parlcd.h"
+#include "../microzed/mzapo_peri.h"
 #include "../microzed/mzapo_phys.h"
 #include "../microzed/mzapo_regs.h"
-#include "../microzed/mzapo_peri.h"
+#include "../microzed/serialize_lock.h"
+#include "../utils/timer.h"
+#include "../utils/scoreboard.h"
+#include <stdint.h>
 
-#include "../fonts/font_types.h"
+// Ensure the scoreboard_t and font_descriptor_t types are defined
+#include "../fonts/font_types.h" // Assuming scoreboard_t is defined here
 
-#include "ppm_loader.h"
-#include "draw_text.h"
+/**
+ * @brief Draws the scoreboard on the framebuffer.
+ *
+ * @param sb Pointer to the scoreboard structure.
+ * @param framebuffer Pointer to the framebuffer where the scoreboard will be drawn.
+ * @param font Pointer to the font descriptor used for rendering text.
+ */
+void draw_scoreboard(scoreboard_t *sb, uint16_t *framebuffer, const font_descriptor_t *font);
 
-#define MAX_SCORES 20
-#define SCORE_LINE_LENGTH 50
+/**
+ * @brief Handles scoreboard input and interaction.
+ *
+ * @param sb Pointer to the scoreboard structure.
+ * @param framebuffer Pointer to the framebuffer for rendering updates.
+ */
+void handle_scoreboard(scoreboard_t *sb, uint16_t *framebuffer);
 
-typedef struct
-{
-    char lines[MAX_SCORES][SCORE_LINE_LENGTH];
-    int total_lines;
-    int scroll_offset;
-} scoreboard_t;
-
-void init_scoreboard(scoreboard_t *sb);
-int load_scores(scoreboard_t *sb);
-int save_score(const char *name, int score);
-void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *font);
-void scroll_scoreboard(scoreboard_t *sb, int direction);
-int handle_scoreboard_input(scoreboard_t *sb);
-
-#endif
+#endif // DISPLAY_SCOREBOARD_H
