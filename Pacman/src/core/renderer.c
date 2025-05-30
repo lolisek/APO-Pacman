@@ -7,82 +7,7 @@
 #include "../../include/map/map.h"
 #include "../../include/utils/constants.h"
 #include "../../include/microzed/mzapo_parlcd.h"
-
-// --- Static texture pointers ---
-static ppm_image_t *wall_texture = NULL;
-static ppm_image_t *pacman_textures[5] = {NULL};       // Right, Left, Up, Down, Closed
-static ppm_image_t *ghost_red_textures[2] = {NULL};    // Right, Left
-static ppm_image_t *ghost_orange_textures[2] = {NULL}; // Right, Left
-static ppm_image_t *ghost_blue_textures[2] = {NULL};   // Right, Left
-static ppm_image_t *ghost_pink_textures[2] = {NULL};   // Right, Left
-static ppm_image_t *pellet_texture = NULL;
-static ppm_image_t *power_pellet_texture = NULL;
-static ppm_image_t *vulnerable_ghost_texture = NULL;
-static ppm_image_t *eaten_ghost_texture = NULL;
-
-// --- Helper: Load a texture and print error if it fails ---
-static ppm_image_t *load_texture_or_warn(const char *resource_name)
-{
-    char path[256];
-    get_resource_path(path, sizeof(path), resource_name);
-    ppm_image_t *img = load_ppm(path);
-    if (!img)
-    {
-        fprintf(stderr, "Failed to load texture: %s\n", resource_name);
-    }
-    return img;
-}
-
-// --- Helper: Load a pair of textures (right/left) ---
-static void load_ghost_textures(const char *right, const char *left, ppm_image_t **arr)
-{
-    arr[0] = load_texture_or_warn(right);
-    arr[1] = load_texture_or_warn(left);
-}
-
-void render_init(void)
-{
-    // Load main textures
-    wall_texture = load_texture_or_warn("block.ppm");
-    pellet_texture = load_texture_or_warn("pellet.ppm");
-    power_pellet_texture = load_texture_or_warn("power-pellet.ppm");
-
-    // Pacman textures (order: right, left, up, down, closed)
-    pacman_textures[0] = load_texture_or_warn("pacman-right.ppm");
-    pacman_textures[1] = load_texture_or_warn("pacman-left.ppm");
-    pacman_textures[2] = load_texture_or_warn("pacman-up.ppm");
-    pacman_textures[3] = load_texture_or_warn("pacman-down.ppm");
-    pacman_textures[4] = load_texture_or_warn("pacman-closed.ppm");
-
-    // Ghost textures
-    load_ghost_textures("ghost-red-right.ppm", "ghost-red-left.ppm", ghost_red_textures);
-    load_ghost_textures("ghost-or-right.ppm", "ghost-or-left.ppm", ghost_orange_textures);
-    load_ghost_textures("ghost-blue-right.ppm", "ghost-blue-left.ppm", ghost_blue_textures);
-    load_ghost_textures("ghost-pink-right.ppm", "ghost-pink-left.ppm", ghost_pink_textures);
-
-    vulnerable_ghost_texture = load_texture_or_warn("vulnerable-ghost.ppm");
-    eaten_ghost_texture = load_texture_or_warn("eyes.ppm");
-
-    // Check for any missing essential textures
-    if (!wall_texture || !pellet_texture || !power_pellet_texture)
-    {
-        fprintf(stderr, "Essential textures missing. Rendering may fail.\n");
-    }
-    for (int i = 0; i < 5; ++i)
-        if (!pacman_textures[i])
-            fprintf(stderr, "Pacman texture %d missing\n", i);
-    for (int i = 0; i < 2; ++i)
-    {
-        if (!ghost_red_textures[i])
-            fprintf(stderr, "Red ghost texture %d missing\n", i);
-        if (!ghost_orange_textures[i])
-            fprintf(stderr, "Orange ghost texture %d missing\n", i);
-        if (!ghost_blue_textures[i])
-            fprintf(stderr, "Blue ghost texture %d missing\n", i);
-        if (!ghost_pink_textures[i])
-            fprintf(stderr, "Pink ghost texture %d missing\n", i);
-    }
-}
+#include "../../include/core/resource_manager.h"
 
 void render(GameState *game_state, uint16_t *fb)
 {
@@ -106,7 +31,6 @@ void render(GameState *game_state, uint16_t *fb)
 
     for (int i = 0; i < NUM_GHOSTS; i++)
     {
-        // Optionally: bool frightened = game_state->frightened_timer > 0 && game_state->ghosts[i].specific.ghost.mode != GHOST_MODE_EATEN;
         render_ghost(&game_state->ghosts[i], fb, animation_frame, offset_x, offset_y);
     }
 
@@ -125,6 +49,7 @@ void render_ui(const GameState *game_state, uint16_t *fb)
     draw_string(fb, 10, 10, score_text, 0xFFFF, &font_winFreeSystem14x16);
 
     // Draw lives at bottom-left
+    ppm_image_t **pacman_textures = get_pacman_textures();
     for (int i = 0; i < game_state->lives; i++)
     {
         draw_ppm_image(fb, 10 + i * 20, LCD_HEIGHT - 30, pacman_textures[0]);
@@ -133,6 +58,10 @@ void render_ui(const GameState *game_state, uint16_t *fb)
 
 void render_map(const Map *map, uint16_t *fb, int offset_x, int offset_y)
 {
+    ppm_image_t *wall_texture = get_wall_texture();
+    ppm_image_t *pellet_texture = get_pellet_texture();
+    ppm_image_t *power_pellet_texture = get_power_pellet_texture();
+
     for (int y = 0; y < map->height; y++)
     {
         for (int x = 0; x < map->width; x++)
@@ -172,6 +101,7 @@ void render_map(const Map *map, uint16_t *fb, int offset_x, int offset_y)
 
 void render_pacman(const Entity *pacman, uint16_t *fb, int animation_frame, int offset_x, int offset_y)
 {
+    ppm_image_t **pacman_textures = get_pacman_textures();
     int direction_index = 3; // Default: Down
     if (pacman->direction.y == 0 && pacman->direction.x == 1)
         direction_index = 0; // Right
@@ -201,28 +131,18 @@ void render_ghost(const Entity *ghost, uint16_t *fb, int animation_frame, int of
 
     if (ghost->specific.ghost.mode == GHOST_MODE_EATEN)
     {
-        texture = eaten_ghost_texture;
+        texture = get_eaten_ghost_texture();
     }
     else if (ghost->specific.ghost.mode == GHOST_MODE_FRIGHTENED)
     {
-        texture = vulnerable_ghost_texture;
+        texture = get_vulnerable_ghost_texture();
     }
     else
     {
-        switch (ghost->specific.ghost.type)
+        ppm_image_t **ghost_textures = get_ghost_textures(ghost->specific.ghost.type);
+        if (ghost_textures)
         {
-        case GHOST_TYPE_BLINKY:
-            texture = ghost->direction.x > 0 ? ghost_red_textures[0] : ghost_red_textures[1];
-            break;
-        case GHOST_TYPE_PINKY:
-            texture = ghost->direction.x > 0 ? ghost_pink_textures[0] : ghost_pink_textures[1];
-            break;
-        case GHOST_TYPE_INKY:
-            texture = ghost->direction.x > 0 ? ghost_blue_textures[0] : ghost_blue_textures[1];
-            break;
-        case GHOST_TYPE_CLYDE:
-            texture = ghost->direction.x > 0 ? ghost_orange_textures[0] : ghost_orange_textures[1];
-            break;
+            texture = ghost->direction.x > 0 ? ghost_textures[0] : ghost_textures[1];
         }
     }
 

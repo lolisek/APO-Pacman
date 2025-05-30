@@ -14,12 +14,6 @@
 // --- Renderer API ---
 
 /**
- * @brief Initializes the rendering system.
- * Loads textures and prepares the rendering environment.
- */
-void render_init(void);
-
-/**
  * @brief Renders the entire game state.
  * @param game_state The current game state to render.
  * @param fb The framebuffer to render to.

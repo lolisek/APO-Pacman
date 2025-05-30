@@ -6,6 +6,7 @@
 #include "../include/gui/display_scoreboard.h"
 #include "../include/utils/constants.h"
 #include "../include/gui/custom_keyboard.h"
+#include "../include/core/resource_manager.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -87,13 +88,50 @@ void *render_loop(void *arg)
     return NULL;
 }
 
+void handle_game_over(uint16_t *shared_fb, int score)
+{
+    // Render the preloaded game over screen
+    ppm_image_t *gameover_screen = get_gameover_screen();
+    if (gameover_screen)
+    {
+        memcpy(shared_fb, gameover_screen->pixels, LCD_SIZE * sizeof(uint16_t));
+        lcd_update(shared_fb);
+    }
+
+    while (1)
+    {
+        if (red_knob_is_pressed())
+        {
+            // Render the keyboard for name input
+            char *player_name = handle_keyboard_input(shared_fb, &font_winFreeSystem14x16);
+            if (player_name)
+            {
+                save_score(player_name, score);
+                free(player_name);
+            }
+            break;
+        }
+        else if (blue_knob_is_pressed())
+        {
+            break;
+        }
+        timer_sleep_ms(100);
+    }
+
+    // Wait for the blue button to be released before continuing
+    while (blue_knob_is_pressed())
+    {
+        timer_sleep_ms(100);
+    }
+}
+
 void run_game_loop(uint16_t *shared_fb)
 {
-    // Initialize game state and renderer
+    // Initialize game state and resources
     init_game_state(&game_state);
-    render_init();
+    init_resources(); // Use resource manager
 
-    running = true; // Set running to true to start the game loop
+    running = true;
 
     // Start game and render threads
     pthread_t game_thread, render_thread;
@@ -106,10 +144,17 @@ void run_game_loop(uint16_t *shared_fb)
         handle_input(&game_state, &running);
     }
 
+    // Wait for a short duration before checking button presses
+    timer_sleep_ms(100);
+
+    // Handle game over or exit
+    handle_game_over(shared_fb, game_state.score);
+
     // Wait for threads to finish
-    running = false; // Ensure threads exit cleanly
+    running = false;
     pthread_join(game_thread, NULL);
     pthread_join(render_thread, NULL);
 
+    cleanup_resources(); // Use resource manager
     cleanup_game(&game_state);
 }
