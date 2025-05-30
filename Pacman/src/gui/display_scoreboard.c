@@ -3,6 +3,7 @@
 #include "../../include/gui/ppm_loader.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h> // For qsort
 
 void init_scoreboard(scoreboard_t *sb)
 {
@@ -46,19 +47,70 @@ int load_scores(scoreboard_t *sb)
     return 0;
 }
 
+int compare_scores(const void *a, const void *b)
+{
+    const char *line_a = (const char *)a;
+    const char *line_b = (const char *)b;
+
+    int score_a = 0, score_b = 0;
+    sscanf(strrchr(line_a, ':') + 1, "%d", &score_a);
+    sscanf(strrchr(line_b, ':') + 1, "%d", &score_b);
+
+    return score_b - score_a; // Sort in descending order
+}
+
 int save_score(const char *name, int score)
 {
     char scores_path[256];
     get_resource_path(scores_path, sizeof(scores_path), "scores.txt");
-    FILE *file = fopen(scores_path, "a");
+
+    // Load existing scores
+    scoreboard_t sb;
+    init_scoreboard(&sb);
+    load_scores(&sb);
+
+    // Add the new score
+    if (sb.total_lines < MAX_SCORES)
+    {
+        snprintf(sb.lines[sb.total_lines], SCORE_LINE_LENGTH, "%s: %d", name, score);
+        sb.total_lines++;
+    }
+    else
+    {
+        // Replace the lowest score if the new score is higher
+        int lowest_score = 0;
+        sscanf(strrchr(sb.lines[sb.total_lines - 1], ':') + 1, "%d", &lowest_score);
+        if (score > lowest_score)
+        {
+            snprintf(sb.lines[sb.total_lines - 1], SCORE_LINE_LENGTH, "%s: %d", name, score);
+        }
+    }
+
+    // Sort the scores
+    qsort(sb.lines, sb.total_lines, SCORE_LINE_LENGTH, compare_scores);
+
+    // Save the sorted scores back to the file
+    FILE *file = fopen(scores_path, "w");
     if (!file)
     {
         perror("Failed to open scores file");
         return -1;
     }
 
-    fprintf(file, "%s: %d\n", name, score);
+    for (int i = 0; i < sb.total_lines; i++)
+    {
+        fprintf(file, "%s\n", sb.lines[i]);
+    }
+
     fclose(file);
+
+    // Debugging: Print the sorted scores to verify
+    fprintf(stderr, "DEBUG: Sorted scores:\n");
+    for (int i = 0; i < sb.total_lines; i++)
+    {
+        fprintf(stderr, "%s\n", sb.lines[i]);
+    }
+
     return 0;
 }
 
