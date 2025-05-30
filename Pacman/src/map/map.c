@@ -50,7 +50,7 @@ bool map_load_from_file(Map *map, const char *filename)
                 map->tiles[y][x].type = TILE_POWER_PELLET;
                 break;
             case '=':
-                map->tiles[y][x].type = TILE_GATE; // Gate tile
+                map->tiles[y][x].type = TILE_OUT_OF_BOUNDS; // Used for ghost gates
                 break;
             default:
                 fprintf(stderr, "Unknown tile type: %c\n", tile_char);
@@ -105,11 +105,6 @@ bool map_is_walkable(const Map *map, int x, int y, EntityType entity_type)
     if (tile_type == TILE_WALL)
     {
         return false; // Walls are not walkable
-    }
-    else if (tile_type == TILE_GATE)
-    {
-        // Allow only ghosts to pass through gates
-        return entity_type == ENTITY_TYPE_GHOST;
     }
 
     return true; // All other tiles are walkable

@@ -72,7 +72,6 @@ void render_map(const Map *map, uint16_t *fb, int offset_x, int offset_y)
             switch (map->tiles[y][x].type)
             {
             case TILE_WALL:
-            case TILE_GATE:
                 if (wall_texture)
                     draw_ppm_image(fb, screen_x, screen_y, wall_texture);
                 break;

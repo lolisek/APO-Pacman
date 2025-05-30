@@ -10,7 +10,7 @@ typedef enum
     TILE_WALL,
     TILE_PELLET,
     TILE_POWER_PELLET,
-    TILE_GATE
+    TILE_OUT_OF_BOUNDS, // Used for ghost gates
 } TileType;
 
 // Tile structure
