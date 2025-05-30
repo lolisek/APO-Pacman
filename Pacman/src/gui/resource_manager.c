@@ -1,4 +1,4 @@
-#include "../../include/core/resource_manager.h"
+#include "../../include/gui/resource_manager.h"
 #include "../../include/utils/constants.h"
 #include "../../include/gui/ppm_loader.h"
 #include "../../include/utils/logger.h"

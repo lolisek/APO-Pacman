@@ -6,7 +6,7 @@
 #include "../include/gui/display_scoreboard.h"
 #include "../include/utils/constants.h"
 #include "../include/gui/custom_keyboard.h"
-#include "../include/core/resource_manager.h"
+#include "../include/gui/resource_manager.h"
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -7,7 +7,7 @@
 #include "../../include/map/map.h"
 #include "../../include/utils/constants.h"
 #include "../../include/microzed/mzapo_parlcd.h"
-#include "../../include/core/resource_manager.h"
+#include "../../include/gui/resource_manager.h"
 
 void render(GameState *game_state, uint16_t *fb)
 {
