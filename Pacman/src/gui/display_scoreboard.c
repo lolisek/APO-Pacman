@@ -140,7 +140,8 @@ void scroll_scoreboard(scoreboard_t *sb, int direction)
 
     const int visible_lines = 12;
 
-    sb->scroll_offset += direction;
+    // Reverse the direction of scrolling
+    sb->scroll_offset -= direction;
 
     if (sb->scroll_offset < 0)
     {

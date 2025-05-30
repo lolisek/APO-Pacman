@@ -13,8 +13,10 @@ void initialize_game_state(GameState *game_state)
     // Initialize Pac-Man
     pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
+    printf("Pac 15:06\n");
+
     // Initialize ghosts
-    ghost_init(&game_state->ghosts[0], GHOST_TYPE_BLINKY); // Blinky
+    ghost_init(&game_state->ghosts[0], GHOST_TYPE_PINKY);  // Blinky
     ghost_init(&game_state->ghosts[1], GHOST_TYPE_PINKY);  // Pinky
     ghost_init(&game_state->ghosts[2], GHOST_TYPE_INKY);   // Inky
     ghost_init(&game_state->ghosts[3], GHOST_TYPE_CLYDE);  // Clyde

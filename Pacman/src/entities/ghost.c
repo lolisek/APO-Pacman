@@ -27,20 +27,24 @@ void ghost_init(Entity *entity, GhostType type)
     switch (type)
     {
     case GHOST_TYPE_BLINKY: // Red ghost
+        LOG_DEBUG("Initializing Blinky (Red Ghost)");
         entity->position = (Vector2D){(float)GHOST_BLINKY_START_X, (float)GHOST_BLINKY_START_Y};
-        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 4; // Set wait time for Blinky
+        ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 2; // Set wait time for Blinky
         break;
     case GHOST_TYPE_PINKY: // Pink ghost
+        LOG_DEBUG("Initializing Pinky (Pink Ghost)");
         entity->position = (Vector2D){(float)GHOST_PINKY_START_X, (float)GHOST_PINKY_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 4; // Set wait time for Blinky
 
         break;
     case GHOST_TYPE_INKY: // Cyan ghost
+        LOG_DEBUG("Initializing Inky (Cyan Ghost)");
         entity->position = (Vector2D){(float)GHOST_INKY_START_X, (float)GHOST_INKY_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 6; // Set wait time for Blinky
 
         break;
     case GHOST_TYPE_CLYDE: // Orange ghost
+        LOG_DEBUG("Initializing Clyde (Orange Ghost)");
         entity->position = (Vector2D){(float)GHOST_CLYDE_START_X, (float)GHOST_CLYDE_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 8; // Set wait time for Blinky
 
@@ -114,7 +118,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
                 if (possible_dirs[i].x == current_dir.x &&
                     possible_dirs[i].y == current_dir.y)
                 {
-                    dist -= 5;
+                    dist -= 3;
                 }
                 break;
 
@@ -291,9 +295,9 @@ Vector2D calculate_target_tile(Ghost *ghost, GameState *state, Entity *ghost_ent
         switch (ghost->type)
         {
         case GHOST_TYPE_BLINKY:
-            return (Vector2D){NUM_TILES_X - 2, 1};
+            return (Vector2D){NUM_TILES_X - 2, 1}; // Blinky goes to the top right corner
         case GHOST_TYPE_PINKY:
-            return (Vector2D){1, 1};
+            return (Vector2D){1, 1}; // Pinky goes to the top left corner
         case GHOST_TYPE_INKY:
             return (Vector2D){NUM_TILES_X - 2, NUM_TILES_Y - 2};
         case GHOST_TYPE_CLYDE:
@@ -305,7 +309,11 @@ Vector2D calculate_target_tile(Ghost *ghost, GameState *state, Entity *ghost_ent
         switch (ghost->type)
         {
         case GHOST_TYPE_BLINKY:
-            return pacman_pos;
+        {
+            return (Vector2D){
+                pacman_pos.x + pacman_dir.x,
+                pacman_pos.y + pacman_dir.y};
+        }
 
         case GHOST_TYPE_PINKY:
         {
