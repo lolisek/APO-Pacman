@@ -114,7 +114,7 @@ void update_game_state(GameState *game_state)
 
 void check_collisions(GameState *game_state)
 {
-    const float COLLISION_TOLERANCE = 0.2f; // Reduced tolerance for more precise collision detection
+    const float COLLISION_TOLERANCE = 0.1f; // Reduced tolerance for more precise collision detection
 
     // Check for collisions between Pac-Man and ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)

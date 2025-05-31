@@ -5,11 +5,10 @@
 # 4. Run 'make' to compile the project (make clean for a clean build)
 
 # READ BEFORE RUNNING
-# TO CONNECT THROUGHT EDUROAM UNCOMMENT THE LINES 68 - ...
-# RUN CODE make copy-resources TARGET_IP=192.168.XXX.XXX
+# TO CONNECT THROUGHT EDUROAM UNCOMMENT THE LINES 68 - ..., edit the SSH_OPTIONS variable (change the username for the proxy jump) and the SSH_GDB_TUNNEL_REQUIRED variable
+# RUN CODE make run and edit the TARGET_IP variable to your target device IP address
+# OR
 # RUN CODE make run TARGET_IP=192.168.XXX.XXX
-
-
 
 CC = arm-linux-gnueabihf-gcc
 CXX = arm-linux-gnueabihf-g++
@@ -18,9 +17,6 @@ CXX = arm-linux-gnueabihf-g++
 SRC_DIR = src
 INC_DIR = include
 BUILD_DIR = build
-
-
-
 
 # -----STEP 1.-----
 MICROZED_DIR = $(SRC_DIR)/microzed
@@ -57,7 +53,7 @@ SOURCES = $(wildcard $(SRC_DIR)/*.c) \
 
 # Target executable
 TARGET_EXE = pacman_mzapo
-TARGET_IP ?= 192.168.223.121
+TARGET_IP ?= 192.168.223.216
 ifeq ($(TARGET_IP),)
 ifneq ($(filter debug run,$(MAKECMDGOALS)),)
 $(warning The target IP address is not set)
@@ -70,19 +66,17 @@ TARGET_USER ?= root
 
 #---- UNCOMMENT TO USE WITH EDUROAM ----_
 
-# for use from Eduroam network use TARGET_IP=localhost and enable next line
-# SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222"
-# SSH_GDB_TUNNEL_REQUIRED=y
-# SSH_OPTIONS=-i ~/.ssh/mzapo-root-key
-# SSH_OPTIONS=-o 'ProxyJump=nguyed24@postel.felk.cvut.cz'
+SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222"
+SSH_GDB_TUNNEL_REQUIRED=y
+# SSH_OPTIONS= -i ~/.ssh/mzapo-root-key
+SSH_OPTIONS= -i ~/.ssh/mzapo-root-key -o 'ProxyJump=nguyed24@postel.felk.cvut.cz'
 
 # ---------------------------------------
 
-# SSH options for working in Postel
-# SSH_OPTIONS=-o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -o "Port=2222" -o "ProxyJump=Minh@193.179.66.234"
+
 
 # for use on postel and connecting to the target device
-SSH_OPTIONS= -i /opt/zynq/ssh-connect/mzapo-root-key
+# SSH_OPTIONS= -i /opt/zynq/ssh-connect/mzapo-root-key
 
 # Object files (placed in the build directory)
 OBJECTS = $(patsubst %.c,$(BUILD_DIR)/%.o,$(notdir $(SOURCES)))
