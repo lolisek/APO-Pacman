@@ -1,3 +1,16 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  led_manager.c      - LED management and updates
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
 #include "../../include/utils/led_manager.h"
 #include "../../include/microzed/mzapo_peri.h"
 #include "../../include/utils/constants.h"

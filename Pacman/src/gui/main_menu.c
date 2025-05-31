@@ -1,3 +1,16 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  main_menu.c      - Scoreboard display and management
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
 #include "../../include/gui/main_menu.h"
 #include "../../include/gui/display_scoreboard.h"
 #include "../../include/core/game.h"

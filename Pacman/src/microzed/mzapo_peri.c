@@ -1,3 +1,17 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  mzapo_peri.c      - Peripheral management for MZ_APO board
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
+
 #include "../../include/microzed/mzapo_peri.h"
 
 static void *mzapo_spiled = NULL;

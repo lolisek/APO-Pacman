@@ -1,3 +1,17 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  map.c      - Map management and loading
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
+
 #include "../../include/core/game_state.h"
 #include "../../include/core/renderer.h"
 #include "../../include/core/input.h"

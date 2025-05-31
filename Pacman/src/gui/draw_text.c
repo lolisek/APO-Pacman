@@ -1,3 +1,16 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  draw_text.c      - Text rendering functions
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
 #include "../../include/gui/draw_text.h"
 
 void draw_pixel(uint16_t *fb, int x, int y, uint16_t color) {

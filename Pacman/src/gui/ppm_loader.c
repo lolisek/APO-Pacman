@@ -1,3 +1,16 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  ppm_loader.c      - PPM image loader and renderer
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
 #include "../../include/gui/ppm_loader.h"
 #include <stdio.h>
 #include <stdlib.h>

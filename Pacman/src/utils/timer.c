@@ -1,3 +1,16 @@
+/*******************************************************************
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
+
+  timer.c      - Timer utility for managing time and delays
+
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
+
+  License: MIT License
+
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
+ *******************************************************************/
+
 //#include <i386-linux-gnu/bits/time.h>
 #define _POSIX_C_SOURCE 199309L
 #include "../../include/utils/timer.h"

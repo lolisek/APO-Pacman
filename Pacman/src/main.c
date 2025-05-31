@@ -1,17 +1,14 @@
 /*******************************************************************
-  Pac-Man Game for MicroZed based MZ_APO board
-  Designed and implemented by Veronica Marie Ohrazdová 
-  and Nguyen Duc Minh
+  APO-Pacman Project for MicroZed based MZ_APO board
+  designed by Petr Porazil at PiKRON
 
-  main.c – main application file
+  main.c      - Main entry point for the game
 
-  This project is developed as part of the coursework for 
-  APO at CTU FEL.
+  Authors: Duc Minh Nguyen, Veronica Marie Ohrazdová
 
-  This software is provided under the MIT License and may be freely
-  used, modified, and distributed for academic and non-commercial use,
-  provided the above authors are credited.
+  License: MIT License
 
+  Copyright (c) 2025 Duc Minh Nguyen, Veronica Marie Ohrazdová
  *******************************************************************/
 
 #define _POSIX_C_SOURCE 200112L
