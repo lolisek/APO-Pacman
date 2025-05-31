@@ -59,6 +59,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 - Designed for the MZ_APO board by Petr Porazil at PiKRON.
 - Inspired by the classic Pacman game.
 
-## Contributor
+## Contributors
 - Veronica Marie Ohrazdová
 - Duc Minh Nguyen
