@@ -3,7 +3,7 @@
   Designed and implemented by Veronica Marie Ohrazdová 
   and Nguyen Duc Minh
 
-  pacman_main.c – main application file
+  main.c – main application file
 
   This project is developed as part of the coursework for 
   APO at CTU FEL.
