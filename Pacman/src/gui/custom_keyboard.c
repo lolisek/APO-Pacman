@@ -2,11 +2,6 @@
 #include "../../include/utils/constants.h"
 #include "../../include/utils/timer.h"
 
-/**
- * @brief Draws the keyboard background on the framebuffer.
- *
- * @param fb Pointer to the framebuffer.
- */
 void draw_keyboard(uint16_t *fb)
 {
     char path[256];
@@ -21,12 +16,6 @@ void draw_keyboard(uint16_t *fb)
     free_ppm(keyboard_bgr);
 }
 
-/**
- * @brief Highlights the selected key on the keyboard.
- *
- * @param fb Pointer to the framebuffer.
- * @param key_index Index of the key to highlight.
- */
 void highlight_key(uint16_t *fb, int key_index)
 {
     int x = 40;
@@ -80,15 +69,7 @@ void highlight_key(uint16_t *fb, int key_index)
     free_ppm(space_highlight);
 }
 
-/**
- * @brief Updates the keyboard display with the current state.
- *
- * @param fb Pointer to the framebuffer.
- * @param position Current key position.
- * @param name Current name being entered.
- * @param font Pointer to the font descriptor.
- */
-static void update_display(uint16_t *fb, int position, const char *name, const font_descriptor_t *font)
+void update_display(uint16_t *fb, int position, const char *name, const font_descriptor_t *font)
 {
     draw_keyboard(fb);
     highlight_key(fb, position);
@@ -96,13 +77,6 @@ static void update_display(uint16_t *fb, int position, const char *name, const f
     lcd_update(fb);
 }
 
-/**
- * @brief Handles user input for the custom keyboard and returns the entered name.
- *
- * @param fb Pointer to the framebuffer.
- * @param font Pointer to the font descriptor.
- * @return char* Pointer to the dynamically allocated name string.
- */
 char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font)
 {
     static const char *alphabet[27] = {
@@ -243,11 +217,6 @@ char *handle_keyboard_input(uint16_t *fb, const font_descriptor_t *font)
     return result;
 }
 
-/**
- * @brief Handles the green knob input for scrolling and selection.
- *
- * @return int Action code based on the green knob input.
- */
 int handle_green_knob()
 {
     static uint32_t last_press_time = 0;
@@ -279,11 +248,6 @@ int handle_green_knob()
     return 0;
 }
 
-/**
- * @brief Handles the red knob input for scrolling and selection.
- *
- * @return int Action code based on the red knob input.
- */
 int handle_red_knob()
 {
     static uint32_t last_press_time = 0;

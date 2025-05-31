@@ -5,12 +5,6 @@
 #include "../../include/core/game_state.h"
 #include <stdio.h>
 
-/**
- * @brief Initializes the Pac-Man entity with its starting position and attributes.
- *
- * @param entity Pointer to the Pac-Man entity.
- * @param position The starting position of Pac-Man.
- */
 void pacman_init(Entity *entity, Vector2D position)
 {
     LOG_INFO("Initializing Pac-Man...");
@@ -24,12 +18,6 @@ void pacman_init(Entity *entity, Vector2D position)
     entity->speed = PACMAN_SPEED;
 }
 
-/**
- * @brief Updates the Pac-Man entity, including movement and interactions with the map.
- *
- * @param specific Pointer to the Pac-Man-specific data.
- * @param passed_gamestate Pointer to the current game state.
- */
 void pacman_update(void *specific, struct GameState *passed_gamestate)
 {
     Entity *entity = (Entity *)specific;
@@ -70,12 +58,6 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     handle_pacman_collisions(entity, game_state);
 }
 
-/**
- * @brief Handles Pac-Man's collisions with pellets, power pellets, and updates the game state.
- *
- * @param entity Pointer to the Pac-Man entity.
- * @param game_state Pointer to the current game state.
- */
 void handle_pacman_collisions(Entity *entity, GameState *game_state)
 {
     int tile_x = (int)(entity->position.x + 0.5f);
@@ -99,11 +81,6 @@ void handle_pacman_collisions(Entity *entity, GameState *game_state)
     }
 }
 
-/**
- * @brief Activates frightened mode for all ghosts and sets the frightened timer.
- *
- * @param game_state Pointer to the current game state.
- */
 void activate_frightened_mode(GameState *game_state)
 {
     game_state->frightened_timer = FRIGHTENED_MODE_DURATION;

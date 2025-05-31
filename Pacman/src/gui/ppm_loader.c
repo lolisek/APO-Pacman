@@ -13,6 +13,7 @@ ppm_image_t *load_ppm(const char *filename) {
     char header[3];
     int max_color_value;
     int width, height;
+
     if (fscanf(file, "%2s\n%d %d\n%d\n", header, &width, &height, &max_color_value) != 4) {
         fprintf(stderr, "Invalid PPM file format\n");
         fclose(file);
@@ -57,12 +58,14 @@ ppm_image_t *load_ppm(const char *filename) {
     if (result != image->width * image->height) {
         fprintf(stderr, "Failed to read image data\n");
         free(image->data);
+        free(image->pixels);
         free(image);
         fclose(file);
         return NULL;
     }
 
     fclose(file);
+
     size_t pixel_count = image->width * image->height;
 
     // Convert RGB to 16-bit color format (RGB565)

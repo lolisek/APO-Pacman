@@ -1,5 +1,5 @@
 #include "../../include/gui/display_scoreboard.h"
-#include "../../include/utils/constants.h" // Add this include
+#include "../../include/utils/constants.h"
 #include "../../include/gui/ppm_loader.h"
 #include <string.h>
 #include <stdio.h>
@@ -44,7 +44,7 @@ int load_scores(scoreboard_t *sb)
 
     fprintf(stderr, "Loaded %d scores\n", sb->total_lines);
     fclose(file);
-    return 0;
+    return 1;
 }
 
 int compare_scores(const void *a, const void *b)
@@ -64,12 +64,10 @@ int save_score(const char *name, int score)
     char scores_path[256];
     get_resource_path(scores_path, sizeof(scores_path), "scores.txt");
 
-    // Load existing scores
     scoreboard_t sb;
     init_scoreboard(&sb);
     load_scores(&sb);
 
-    // Add the new score
     if (sb.total_lines < MAX_SCORES)
     {
         snprintf(sb.lines[sb.total_lines], SCORE_LINE_LENGTH, "%s: %d", name, score);
@@ -77,7 +75,6 @@ int save_score(const char *name, int score)
     }
     else
     {
-        // Replace the lowest score if the new score is higher
         int lowest_score = 0;
         sscanf(strrchr(sb.lines[sb.total_lines - 1], ':') + 1, "%d", &lowest_score);
         if (score > lowest_score)
@@ -86,10 +83,8 @@ int save_score(const char *name, int score)
         }
     }
 
-    // Sort the scores
     qsort(sb.lines, sb.total_lines, SCORE_LINE_LENGTH, compare_scores);
 
-    // Save the sorted scores back to the file
     FILE *file = fopen(scores_path, "w");
     if (!file)
     {
@@ -103,14 +98,6 @@ int save_score(const char *name, int score)
     }
 
     fclose(file);
-
-    // Debugging: Print the sorted scores to verify
-    fprintf(stderr, "DEBUG: Sorted scores:\n");
-    for (int i = 0; i < sb.total_lines; i++)
-    {
-        fprintf(stderr, "%s\n", sb.lines[i]);
-    }
-
     return 0;
 }
 
@@ -135,13 +122,9 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *fo
     const int start_x = 50;
     const int start_y = 30;
     const int line_height = font->height + 4;
-    const int visible_lines = 12; // Fixed number
+    const int visible_lines = 12;
 
-    int lines_to_show = sb->total_lines;
-    if (lines_to_show > visible_lines)
-    {
-        lines_to_show = visible_lines;
-    }
+    int lines_to_show = sb->total_lines > visible_lines ? visible_lines : sb->total_lines;
 
     for (int i = 0; i < lines_to_show; i++)
     {
@@ -158,18 +141,15 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *fo
         int scrollbar_width = 10;
         int scrollbar_x = LCD_WIDTH - scrollbar_width;
 
-        // Calculate scrollbar proportions
         float visible_ratio = (float)visible_lines / sb->total_lines;
         int scrollbar_height = LCD_HEIGHT * visible_ratio;
         int scrollbar_pos = (sb->scroll_offset * LCD_HEIGHT) / sb->total_lines;
 
-        // draw scrollbar track
         for (int y = 0; y < LCD_HEIGHT; y++)
         {
             fb[y * LCD_WIDTH + scrollbar_x] = 0x7BEF;
         }
 
-        // draw scrollbar thumb
         for (int y = scrollbar_pos; y < scrollbar_pos + scrollbar_height; y++)
         {
             if (y >= LCD_HEIGHT)
@@ -181,7 +161,6 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *fb, const font_descriptor_t *fo
         }
     }
 
-    load_scores(sb);
     lcd_update(fb);
 }
 
@@ -192,7 +171,6 @@ void scroll_scoreboard(scoreboard_t *sb, int direction)
 
     const int visible_lines = 12;
 
-    // Reverse the direction of scrolling
     sb->scroll_offset -= direction;
 
     if (sb->scroll_offset < 0)
@@ -248,7 +226,7 @@ void handle_scoreboard(scoreboard_t *sb, uint16_t *framebuffer)
         int sb_action = handle_scoreboard_input(sb);
 
         if (sb_action == 3)
-        { // Exit scoreboard
+        {
             fprintf(stderr, "DEBUG: Exiting scoreboard\n");
             break;
         }

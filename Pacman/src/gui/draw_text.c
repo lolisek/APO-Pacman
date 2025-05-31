@@ -39,6 +39,7 @@ void draw_char(uint16_t *fb, int x, int y, char ch, uint16_t color, const font_d
         }
     }
 }
+
 void draw_string(uint16_t *fb, int x, int y, const char *str, uint16_t color, const font_descriptor_t *font) {
     if (!str || !font) {
         fprintf(stderr, "Invalid string or font\n");
@@ -48,23 +49,23 @@ void draw_string(uint16_t *fb, int x, int y, const char *str, uint16_t color, co
     int start_x = x;
     while (*str) {
         if (*str == '\n') {
-            y += font->height + 2;
+            y += font->height + 2; // Move to the next line
             x = start_x;
             str++;
             continue;
         }
         if (*str == '\r') {
-            x = start_x;
+            x = start_x; // Reset to the start of the line
             str++;
             continue;
         }
 
         draw_char(fb, x, y, *str, color, font);
-        
+
         int char_index = *str - font->firstchar;
         int char_width = font->width ? font->width[char_index] : font->maxwidth;
-        x += char_width + 1;  // Small spacing between characters
-        
+        x += char_width + 1; // Add spacing between characters
+
         str++;
     }
 }

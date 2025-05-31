@@ -1,30 +1,29 @@
 #include "../../include/core/game_state.h"
 #include "../../include/core/renderer.h"
 #include "../../include/core/input.h"
+#include "../../include/utils/logger.h"
 #include <stdio.h>
 
-// Function prototypes
 void map_init(Map *map)
 {
-    // Initialize the map dimensions
     map->width = NUM_TILES_X;
     map->height = NUM_TILES_Y;
 
-    // Initialize the tiles in the map
     for (int y = 0; y < map->height; y++)
     {
         for (int x = 0; x < map->width; x++)
         {
-            map->tiles[y][x].type = TILE_EMPTY; // Set all tiles to empty by default
+            map->tiles[y][x].type = TILE_EMPTY;
         }
     }
 }
+
 bool map_load_from_file(Map *map, const char *filename)
 {
     FILE *file = fopen(filename, "r");
     if (file == NULL)
     {
-        fprintf(stderr, "Error opening map file: %s\n", filename);
+        LOG_ERROR("Error opening map file: %s", filename);
         return false;
     }
 
@@ -33,7 +32,12 @@ bool map_load_from_file(Map *map, const char *filename)
         for (int x = 0; x < map->width; x++)
         {
             char tile_char;
-            fscanf(file, " %c", &tile_char); // Read a character from the file
+            if (fscanf(file, " %c", &tile_char) != 1)
+            {
+                LOG_ERROR("Error reading tile at (%d, %d) in file: %s", x, y, filename);
+                fclose(file);
+                return false;
+            }
 
             switch (tile_char)
             {
@@ -53,7 +57,7 @@ bool map_load_from_file(Map *map, const char *filename)
                 map->tiles[y][x].type = TILE_OUT_OF_BOUNDS; // Used for ghost gates
                 break;
             default:
-                fprintf(stderr, "Unknown tile type: %c\n", tile_char);
+                LOG_ERROR("Unknown tile type '%c' at (%d, %d) in file: %s", tile_char, x, y, filename);
                 fclose(file);
                 return false;
             }
@@ -61,41 +65,12 @@ bool map_load_from_file(Map *map, const char *filename)
     }
 
     fclose(file);
+    LOG_INFO("Map loaded successfully from file: %s", filename);
     return true;
 }
-void map_render(const Map *map)
-{
-    // Render the map to the console or screen
-    // TODO implement rendering logic for screen
-    for (int y = 0; y < map->height; y++)
-    {
-        for (int x = 0; x < map->width; x++)
-        {
-            switch (map->tiles[y][x].type)
-            {
-            case TILE_EMPTY:
-                printf(" "); // Empty tile
-                break;
-            case TILE_WALL:
-                printf("#"); // Wall tile
-                break;
-            case TILE_PELLET:
-                printf("*"); // Pellet tile
-                break;
-            case TILE_POWER_PELLET:
-                printf("o"); // Power pellet tile
-                break;
-            default:
-                printf("?"); // Unknown tile type
-                break;
-            }
-        }
-        printf("\n");
-    }
-};
+
 bool map_is_walkable(const Map *map, int x, int y, EntityType entity_type)
 {
-    // Check if the tile at (x, y) is walkable
     if (x < 0 || x >= map->width || y < 0 || y >= map->height)
     {
         return false; // Out of bounds

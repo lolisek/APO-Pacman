@@ -18,7 +18,8 @@ static ppm_image_t *power_pellet_texture = NULL;
 static ppm_image_t *vulnerable_ghost_texture = NULL;
 static ppm_image_t *eaten_ghost_texture = NULL;
 
-static ppm_image_t *load_texture_or_warn(const char *resource_name) {
+ppm_image_t *load_texture_or_warn(const char *resource_name)
+{
     char path[256];
     get_resource_path(path, sizeof(path), resource_name);
     ppm_image_t *img = load_ppm(path);
@@ -28,28 +29,25 @@ static ppm_image_t *load_texture_or_warn(const char *resource_name) {
     return img;
 }
 
-static void load_ghost_textures(const char *right, const char *left, ppm_image_t **arr) {
+void load_ghost_textures(const char *right, const char *left, ppm_image_t **arr)
+{
     arr[0] = load_texture_or_warn(right);
     arr[1] = load_texture_or_warn(left);
 }
 
-void init_resources() {
-    // Load game over screen
+void init_resources()
+{
     gameover_screen = load_texture_or_warn("gameover.ppm");
-
-    // Load main textures
     wall_texture = load_texture_or_warn("block.ppm");
     pellet_texture = load_texture_or_warn("pellet.ppm");
     power_pellet_texture = load_texture_or_warn("power-pellet.ppm");
 
-    // Pacman textures (order: right, left, up, down, closed)
     pacman_textures[0] = load_texture_or_warn("pacman-right.ppm");
     pacman_textures[1] = load_texture_or_warn("pacman-left.ppm");
     pacman_textures[2] = load_texture_or_warn("pacman-up.ppm");
     pacman_textures[3] = load_texture_or_warn("pacman-down.ppm");
     pacman_textures[4] = load_texture_or_warn("pacman-closed.ppm");
 
-    // Ghost textures
     load_ghost_textures("ghost-red-right.ppm", "ghost-red-left.ppm", ghost_red_textures);
     load_ghost_textures("ghost-or-right.ppm", "ghost-or-left.ppm", ghost_orange_textures);
     load_ghost_textures("ghost-blue-right.ppm", "ghost-blue-left.ppm", ghost_blue_textures);
@@ -59,14 +57,13 @@ void init_resources() {
     eaten_ghost_texture = load_texture_or_warn("eyes.ppm");
 }
 
-void cleanup_resources() {
-    // Free game over screen
+void cleanup_resources()
+{
     if (gameover_screen) {
         free_ppm(gameover_screen);
         gameover_screen = NULL;
     }
 
-    // Free textures
     free_ppm(wall_texture);
     free_ppm(pellet_texture);
     free_ppm(power_pellet_texture);

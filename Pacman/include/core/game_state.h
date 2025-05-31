@@ -26,14 +26,16 @@
     // --- API ---
 
     /**
-     * @brief Initialize the game state.
-     * @param game_state Pointer to the game state to initialize.
+     * @brief Initializes the game state, including Pac-Man, ghosts, and the map.
+     *
+     * @param game_state Pointer to the game state structure.
      */
     void init_game_state(GameState *game_state);
 
     /**
-     * @brief Reset the level to its initial state.
-     * @param game_state Pointer to the game state to reset.
+     * @brief Resets the level, including Pac-Man and ghost positions.
+     *
+     * @param game_state Pointer to the game state structure.
      */
     void reset_level(GameState *game_state);
 
@@ -44,14 +46,16 @@
     void cleanup_game(GameState *game_state);
 
     /**
-     * @brief Update the game state.
-     * @param game_state Pointer to the game state to update.
+     * @brief Updates the game state, including Pac-Man, ghosts, and collisions.
+     *
+     * @param game_state Pointer to the game state structure.
      */
     extern void update_game_state(GameState *game_state);
 
     /**
-     * @brief Checks for collisions (Pac-Man vs ghosts, etc).
-     * @param game_state Pointer to the game state.
+     * @brief Checks for collisions between Pac-Man and ghosts.
+     *
+     * @param game_state Pointer to the game state structure.
      */
     void check_collisions(GameState *game_state);
 

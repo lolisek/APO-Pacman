@@ -31,9 +31,37 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *framebuffer, const font_descrip
  */
 void handle_scoreboard(scoreboard_t *sb, uint16_t *framebuffer);
 
+/**
+ * @brief Initializes the scoreboard structure.
+ *
+ * @param sb Pointer to the scoreboard structure.
+ */
+void init_scoreboard(scoreboard_t *sb);
 
+/**
+ * @brief Loads scores from the scores file into the scoreboard structure.
+ *
+ * @param sb Pointer to the scoreboard structure.
+ * @return int 1 if successful, 0 otherwise.
+ */
+int load_scores(scoreboard_t *sb);
 
+/**
+ * @brief Compares two score lines for sorting in descending order.
+ *
+ * @param a Pointer to the first score line.
+ * @param b Pointer to the second score line.
+ * @return int Difference between the scores (negative if b > a).
+ */
+int compare_scores(const void *a, const void *b);
 
-
+/**
+ * @brief Saves a new score to the scores file.
+ *
+ * @param name Name of the player.
+ * @param score Player's score.
+ * @return int 0 if successful, -1 otherwise.
+ */
+int save_score(const char *name, int score);
 
 #endif // DISPLAY_SCOREBOARD_H

@@ -17,11 +17,6 @@
 static GameState game_state;
 static pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-/**
- * @brief Spawns a random pellet on an empty tile in the game map.
- *
- * @param game_state Pointer to the game state structure.
- */
 void spawn_random_pellet(GameState *game_state)
 {
     int empty_tiles[NUM_TILES_X * NUM_TILES_Y][2];
@@ -52,11 +47,6 @@ void spawn_random_pellet(GameState *game_state)
     }
 }
 
-/**
- * @brief Spawns a random power pellet on an empty tile in the game map.
- *
- * @param game_state Pointer to the game state structure.
- */
 void spawn_random_power_pellet(GameState *game_state)
 {
     int empty_tiles[NUM_TILES_X * NUM_TILES_Y][2];
@@ -87,12 +77,6 @@ void spawn_random_power_pellet(GameState *game_state)
     }
 }
 
-/**
- * @brief Main game loop that updates the game state and handles pellet spawning.
- *
- * @param arg Unused argument for thread compatibility.
- * @return void* Always returns NULL.
- */
 void *game_loop(void *arg)
 {
     uint64_t last_pellet_spawn_time = 0;
@@ -136,12 +120,6 @@ void *game_loop(void *arg)
     return NULL;
 }
 
-/**
- * @brief Render loop that updates the framebuffer and displays the game.
- *
- * @param arg Pointer to the shared framebuffer.
- * @return void* Always returns NULL.
- */
 void *render_loop(void *arg)
 {
     uint16_t *shared_fb = (uint16_t *)arg;
@@ -161,12 +139,6 @@ void *render_loop(void *arg)
     return NULL;
 }
 
-/**
- * @brief Handles the game over state, including displaying the game over screen and saving scores.
- *
- * @param shared_fb Pointer to the shared framebuffer.
- * @param score The final score of the player.
- */
 void handle_game_over(uint16_t *shared_fb, int score)
 {
     // Render the preloaded game over screen
@@ -204,11 +176,6 @@ void handle_game_over(uint16_t *shared_fb, int score)
     }
 }
 
-/**
- * @brief Cleans up the game state by resetting all entities and variables.
- *
- * @param game_state Pointer to the game state structure.
- */
 void cleanup_game(GameState *game_state)
 {
     LOG_INFO("Cleaning up game state...");
@@ -231,11 +198,6 @@ void cleanup_game(GameState *game_state)
     LOG_INFO("Game state cleanup complete.");
 }
 
-/**
- * @brief Runs the main game loop, including initialization, rendering, and input handling.
- *
- * @param shared_fb Pointer to the shared framebuffer.
- */
 void run_game_loop(uint16_t *shared_fb)
 {
     // Initialize game state and resources

@@ -6,11 +6,6 @@
 #include "../../include/utils/timer.h"
 #include <stdio.h>
 
-/**
- * @brief Initializes the game state, including Pac-Man, ghosts, and the map.
- *
- * @param game_state Pointer to the game state structure.
- */
 void init_game_state(GameState *game_state)
 {
     LOG_INFO("Initializing game state...");
@@ -43,11 +38,6 @@ void init_game_state(GameState *game_state)
     game_state->game_over = false;
 }
 
-/**
- * @brief Resets the level, including Pac-Man and ghost positions.
- *
- * @param game_state Pointer to the game state structure.
- */
 void reset_level(GameState *game_state)
 {
     LOG_INFO("Resetting level...");
@@ -68,11 +58,6 @@ void reset_level(GameState *game_state)
     LOG_INFO("Level reset successfully.");
 }
 
-/**
- * @brief Updates the game state, including Pac-Man, ghosts, and collisions.
- *
- * @param game_state Pointer to the game state structure.
- */
 void update_game_state(GameState *game_state)
 {
     static int ghost_tick_counter = 0;
@@ -126,11 +111,6 @@ void update_game_state(GameState *game_state)
     check_collisions(game_state);
 }
 
-/**
- * @brief Checks for collisions between Pac-Man and ghosts.
- *
- * @param game_state Pointer to the game state structure.
- */
 void check_collisions(GameState *game_state)
 {
     const float COLLISION_TOLERANCE = 0.2f; // Reduced tolerance for more precise collision detection

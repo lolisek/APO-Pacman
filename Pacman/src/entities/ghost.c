@@ -8,12 +8,6 @@
 #include <stdio.h>
 #include <math.h> // For log function
 
-/**
- * @brief Initializes a ghost entity with its type and starting position.
- *
- * @param entity Pointer to the ghost entity.
- * @param type The type of the ghost (e.g., Blinky, Pinky, Inky, Clyde).
- */
 void ghost_init(Entity *entity, GhostType type)
 {
     LOG_INFO("Initializing Ghost...");
@@ -65,17 +59,7 @@ void ghost_init(Entity *entity, GhostType type)
     ghost->starting_position = entity->position;
 }
 
-/**
- * @brief Determines the next direction for a ghost to move towards its target.
- *
- * @param current Current position of the ghost.
- * @param target Target position for the ghost.
- * @param map Pointer to the game map.
- * @param current_dir Current direction of the ghost.
- * @param memory Pointer to the ghost's navigation memory.
- * @param ghost Pointer to the ghost structure.
- * @return Vector2D The next direction for the ghost.
- */
+
 Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
                                            struct Map *map, Vector2D current_dir,
                                            GhostNavigationMemory *memory,
@@ -179,12 +163,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
     return reverse_dir;
 }
 
-/**
- * @brief Updates the ghost's state and position based on its mode and target.
- *
- * @param specific Pointer to the ghost-specific data.
- * @param passed_gamestate Pointer to the current game state.
- */
+
 void ghost_update(void *specific, struct GameState *passed_gamestate)
 {
     Entity *entity = (Entity *)specific;

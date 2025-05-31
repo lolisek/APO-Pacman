@@ -33,4 +33,41 @@ void init_game_resources();
  */
 void cleanup_game_resources();
 
+/**
+ * @brief Spawns a random pellet on an empty tile in the game map.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
+void spawn_random_pellet(GameState *game_state);
+
+/**
+ * @brief Spawns a random power pellet on an empty tile in the game map.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
+void spawn_random_power_pellet(GameState *game_state);
+
+/**
+ * @brief Main game loop that updates the game state and handles pellet spawning.
+ *
+ * @param arg Unused argument for thread compatibility.
+ * @return void* Always returns NULL.
+ */
+void *game_loop(void *arg);
+
+/**
+ * @brief Render loop that updates the framebuffer and displays the game.
+ *
+ * @param arg Pointer to the shared framebuffer.
+ * @return void* Always returns NULL.
+ */
+void *render_loop(void *arg);
+
+/**
+ * @brief Cleans up the game state by resetting all entities and variables.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
+void cleanup_game(GameState *game_state);
+
 #endif // APO_PACMAN_GAME_H

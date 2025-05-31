@@ -8,11 +8,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-/**
- * @brief Handles user input from the knobs and updates the game state accordingly.
- *
- * @param gamestate Pointer to the current game state.
- */
 void handle_input(GameState *gamestate)
 {
     static uint8_t last_knob_pos = 0;  /**< Stores the last position of the red knob. */

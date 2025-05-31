@@ -3,14 +3,10 @@
 #include "../../include/core/game.h"
 #include "../../include/utils/timer.h"
 #include "../../include/microzed/mzapo_parlcd.h"
+#include "../../include/utils/logger.h"
 #include <stdio.h>
 
 int handle_knob_rotation(int last_pos);
-
-const char *menu_items[MENU_ITEMS] = {
-    "Play",
-    "Show scoreboard",
-    "Exit"};
 
 void init_menu(menu_state_t *menu)
 {
@@ -42,27 +38,24 @@ int handle_menu_input(menu_state_t *menu)
     static uint32_t last_press_time = 0;
     uint32_t current_time = clock() * 1000;
 
-    // Handle knob rotation
     int change = handle_knob_rotation(menu->last_knob_pos);
 
     if (change != 0)
     {
-        // Reverse the menu navigation direction
         int new_position = menu->selected + change;
         new_position = (new_position % MENU_ITEMS + MENU_ITEMS) % MENU_ITEMS;
 
         menu->selected = new_position;
         menu->last_knob_pos = get_red_knob_rotation();
-        return 1; // Redraw needed
+        return 1;
     }
 
-    // Handle knob press
     if (red_knob_is_pressed())
     {
         if (current_time - last_press_time > DEBOUNCE_DELAY_MS)
         {
             last_press_time = current_time;
-            return menu->selected + 2; // Return selection
+            return menu->selected + 2;
         }
     }
 
@@ -74,7 +67,6 @@ int handle_knob_rotation(int last_pos)
     uint8_t current_knob = get_red_knob_rotation();
     int delta = (int)(current_knob - last_pos);
 
-    // Handle wrap-around
     if (delta > 127)
         delta -= 256;
     if (delta < -127)
@@ -82,10 +74,8 @@ int handle_knob_rotation(int last_pos)
 
     if (abs(delta) > 3)
     {
-        // Calculate clicks, rounding toward zero
         int clicks = delta / (KNOB_POSITIONS / KNOB_CLICKS_PER_TURN);
 
-        // For small movements, just return ±1
         if (abs(clicks) == 0)
         {
             return (delta > 0) ? 1 : -1;
@@ -111,15 +101,15 @@ void render_arrows(int selected, uint16_t *fb)
 
     switch (selected)
     {
-    case 0: // Play
+    case 0:
         draw_ppm_image(fb, 174, 101, arrow_right);
         draw_ppm_image(fb, 292, 101, arrow_left);
         break;
-    case 1: // Show scoreboard
+    case 1:
         draw_ppm_image(fb, 72, 147, arrow_right);
         draw_ppm_image(fb, 404, 147, arrow_left);
         break;
-    case 2: // Exit
+    case 2:
         draw_ppm_image(fb, 177, 194, arrow_right);
         draw_ppm_image(fb, 294, 194, arrow_left);
         break;
@@ -156,29 +146,25 @@ void run_main_menu()
         else if (action >= 2)
         {
             menu.selected = action - 2;
-            printf("Selected: %s\n", menu_items[menu.selected]);
 
             if (menu.selected == 0)
             {
-                // Start game
-                printf("Starting game...\n");
+                LOG_INFO("Starting game...");
                 GameState game_state;
                 run_game_loop(menu.framebuffer);
-                draw_menu(&menu); // Redraw menu after returning from the game
+                draw_menu(&menu);
                 lcd_update(menu.framebuffer);
             }
             else if (menu.selected == 1)
             {
-                // Show scoreboard
-                printf("Showing scoreboard...\n");
+                LOG_INFO("Showing scoreboard...");
                 handle_scoreboard(&sb, menu.framebuffer);
                 draw_menu(&menu);
                 lcd_update(menu.framebuffer);
             }
             else if (menu.selected == 2)
             {
-                // Exit menu
-                printf("Exiting...\n");
+                LOG_INFO("Exiting...");
                 break;
             }
         }

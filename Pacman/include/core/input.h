@@ -14,7 +14,11 @@ static const Vector2D directions[] = {
     {0, 1}   // Up
 };
 
-// Function to handle user input
+/**
+ * @brief Handles user input from the knobs and updates the game state accordingly.
+ *
+ * @param gamestate Pointer to the current game state.
+ */
 void handle_input(GameState *gamestate);
 
 #endif // APO_PACMAN_INPUT_H
