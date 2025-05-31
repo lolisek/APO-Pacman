@@ -179,9 +179,6 @@ void handle_game_over(uint16_t *shared_fb, int score)
 void cleanup_game(GameState *game_state) {
     LOG_INFO("Cleaning up game state...");
 
-    // Free map resources
-    map_cleanup(&game_state->map);
-
     // Reset Pac-Man
     memset(&game_state->pacman, 0, sizeof(Entity));
 

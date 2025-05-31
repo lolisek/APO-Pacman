@@ -3,8 +3,6 @@
 #include "../../include/utils/constants.h"
 #include "../../include/utils/logger.h"
 
-static bool all_leds_initialized = false;
-
 #define total_leds 32
 
 void update_leds(const GameState *game_state) {
@@ -12,15 +10,12 @@ void update_leds(const GameState *game_state) {
     if (!game_state || game_state->game_over)
     {
         set_rgb1(0, 0, 0); // Turn off RGB LED
+        set_all_leds_off(); // Turn off all LEDs
         return;
     }
 
     // RGB LED state indication
-    if (game_state->game_over)
-    {
-        set_rgb1(255, 0, 0); // Red for game over
-    }
-    else if (game_state->frightened_timer > 0)
+    if (game_state->frightened_timer > 0)
     {
         set_rgb1(0, 0, 255); // Blue when power-up is active
     }
@@ -29,6 +24,7 @@ void update_leds(const GameState *game_state) {
         set_rgb1(0, 255, 0); // Green for running
     }
 
+    // LED behavior during the game
     if (game_state->frightened_timer > 0) {
         // Frightened state: Start with all LEDs on and turn them off one by one
         int leds_off = ((FRIGHTENED_MODE_DURATION - game_state->frightened_timer) * total_leds) / FRIGHTENED_MODE_DURATION;
@@ -43,11 +39,21 @@ void update_leds(const GameState *game_state) {
             }
         }
     } else {
-        // Normal state: Turn off all LEDs
+        // Normal state: Start with all LEDs on and progressively turn them off as lives decrease
+        int leds_off = ((PACMAN_START_LIVES - game_state->lives) * total_leds) / PACMAN_START_LIVES;
+
+        LOG_DEBUG("Normal state. Lives remaining: %d, LEDs off: %d", game_state->lives, leds_off);
+
         for (int i = 0; i < total_leds; i++) {
-            set_led_off(i);
+            if (i < leds_off)
+            {
+                set_led_off(i); // Turn off LED
+            }
+            else
+            {
+                set_led_on(i); // Keep LED on
+            }
         }
-        all_leds_initialized = false; // Reset initialization flag
     }
 }
 

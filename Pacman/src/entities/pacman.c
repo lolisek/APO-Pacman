@@ -76,7 +76,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
             for (int i = 0; i < NUM_GHOSTS; i++)
             {
                 Ghost *ghost = &game_state->ghosts[i].specific.ghost;
-                if (ghost->mode != GHOST_MODE_EATEN) // Do not affect eaten ghosts
+                if (ghost->mode != GHOST_MODE_EATEN && ghost->mode != GHOST_MODE_EXITING)
                 {
                     ghost->mode = GHOST_MODE_FRIGHTENED;
                     ghost->frightened_timer = FRIGHTENED_MODE_DURATION;
