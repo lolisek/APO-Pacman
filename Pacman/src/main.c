@@ -41,8 +41,6 @@ int main(int argc, char *argv[]) {
 
     mzapo_setup();
 
-    // Loop to allow restarting the game after returning to the menu
-
     run_main_menu();
 
     serialize_unlock();

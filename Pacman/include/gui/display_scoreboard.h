@@ -31,4 +31,9 @@ void draw_scoreboard(scoreboard_t *sb, uint16_t *framebuffer, const font_descrip
  */
 void handle_scoreboard(scoreboard_t *sb, uint16_t *framebuffer);
 
+
+
+
+
+
 #endif // DISPLAY_SCOREBOARD_H

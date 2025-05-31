@@ -17,6 +17,7 @@
 
 #define PELLET_SCORE 10
 #define POWER_PELLET_SCORE 50
+#define GHOST_EATEN_SCORE 200
 
 // --- Map configuration ---
 #define NUM_TILES_X 23
@@ -33,7 +34,8 @@
 
 #define FRIGHTENED_MODE_DURATION 45
 #define FRIGHTENED_GHOST_SPEED 0.5    // Reduced speed during frightened mode
-#define SCATTER_MODE_DURATION 3       // seconds
+#define SCATTER_MODE_DURATION 3
+#define CHASE_MODE_DURATION 5
 #define GHOST_MODE_DURATION 20     // seconds
 
 // #define PACMAN_START_X 12

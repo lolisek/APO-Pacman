@@ -10,13 +10,18 @@
 #include "../include/utils/led_manager.h"
 #include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h> // For rand()
+#include <stdlib.h>
 #include <unistd.h>
 
 // Shared game state and mutex
 static GameState game_state;
 static pthread_mutex_t game_state_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/**
+ * @brief Spawns a random pellet on an empty tile in the game map.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void spawn_random_pellet(GameState *game_state)
 {
     int empty_tiles[NUM_TILES_X * NUM_TILES_Y][2];
@@ -47,6 +52,11 @@ void spawn_random_pellet(GameState *game_state)
     }
 }
 
+/**
+ * @brief Spawns a random power pellet on an empty tile in the game map.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void spawn_random_power_pellet(GameState *game_state)
 {
     int empty_tiles[NUM_TILES_X * NUM_TILES_Y][2];
@@ -77,6 +87,12 @@ void spawn_random_power_pellet(GameState *game_state)
     }
 }
 
+/**
+ * @brief Main game loop that updates the game state and handles pellet spawning.
+ *
+ * @param arg Unused argument for thread compatibility.
+ * @return void* Always returns NULL.
+ */
 void *game_loop(void *arg)
 {
     uint64_t last_pellet_spawn_time = 0;
@@ -96,13 +112,13 @@ void *game_loop(void *arg)
             last_pellet_spawn_time = frame_start_time;
         }
 
-        if (frame_start_time - last_power_pellet_spawn_time > 20000) // 20 seconds interval
+        if (frame_start_time - last_power_pellet_spawn_time > 60000) // 60 seconds interval
         {
             spawn_random_power_pellet(&game_state);
             last_power_pellet_spawn_time = frame_start_time;
         }
 
-        update_leds(&game_state); // Refactored LED logic
+        update_leds(&game_state); // Update LED indicators
         pthread_mutex_unlock(&game_state_mutex);
 
         uint64_t frame_end_time = timer_get_global_elapsed_ms();
@@ -120,6 +136,12 @@ void *game_loop(void *arg)
     return NULL;
 }
 
+/**
+ * @brief Render loop that updates the framebuffer and displays the game.
+ *
+ * @param arg Pointer to the shared framebuffer.
+ * @return void* Always returns NULL.
+ */
 void *render_loop(void *arg)
 {
     uint16_t *shared_fb = (uint16_t *)arg;
@@ -139,6 +161,12 @@ void *render_loop(void *arg)
     return NULL;
 }
 
+/**
+ * @brief Handles the game over state, including displaying the game over screen and saving scores.
+ *
+ * @param shared_fb Pointer to the shared framebuffer.
+ * @param score The final score of the player.
+ */
 void handle_game_over(uint16_t *shared_fb, int score)
 {
     // Render the preloaded game over screen
@@ -176,14 +204,21 @@ void handle_game_over(uint16_t *shared_fb, int score)
     }
 }
 
-void cleanup_game(GameState *game_state) {
+/**
+ * @brief Cleans up the game state by resetting all entities and variables.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
+void cleanup_game(GameState *game_state)
+{
     LOG_INFO("Cleaning up game state...");
 
     // Reset Pac-Man
     memset(&game_state->pacman, 0, sizeof(Entity));
 
     // Reset ghosts
-    for (int i = 0; i < NUM_GHOSTS; i++) {
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
         memset(&game_state->ghosts[i], 0, sizeof(Entity));
     }
 
@@ -196,6 +231,11 @@ void cleanup_game(GameState *game_state) {
     LOG_INFO("Game state cleanup complete.");
 }
 
+/**
+ * @brief Runs the main game loop, including initialization, rendering, and input handling.
+ *
+ * @param shared_fb Pointer to the shared framebuffer.
+ */
 void run_game_loop(uint16_t *shared_fb)
 {
     // Initialize game state and resources

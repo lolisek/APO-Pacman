@@ -2,10 +2,15 @@
 #include "../../include/entities/pacman.h"
 #include "../../include/entities/ghost.h"
 #include "../../include/utils/logger.h"
-#include "../../include/utils/constants.h" // Add this include for get_resource_path
+#include "../../include/utils/constants.h"
 #include "../../include/utils/timer.h"
 #include <stdio.h>
 
+/**
+ * @brief Initializes the game state, including Pac-Man, ghosts, and the map.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void init_game_state(GameState *game_state)
 {
     LOG_INFO("Initializing game state...");
@@ -14,10 +19,10 @@ void init_game_state(GameState *game_state)
     pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
     // Initialize ghosts
-    ghost_init(&game_state->ghosts[0], GHOST_TYPE_BLINKY); // Blinky
-    ghost_init(&game_state->ghosts[1], GHOST_TYPE_PINKY);  // Pinky
-    ghost_init(&game_state->ghosts[2], GHOST_TYPE_INKY);   // Inky
-    ghost_init(&game_state->ghosts[3], GHOST_TYPE_CLYDE);  // Clyde
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
+        ghost_init(&game_state->ghosts[i], (GhostType)i);
+    }
 
     // Initialize score and lives
     game_state->score = PACMAN_START_SCORE;
@@ -38,13 +43,17 @@ void init_game_state(GameState *game_state)
     game_state->game_over = false;
 }
 
+/**
+ * @brief Resets the level, including Pac-Man and ghost positions.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void reset_level(GameState *game_state)
 {
     LOG_INFO("Resetting level...");
 
     // Reset Pac-Man
-    game_state->pacman.position = (Vector2D){PACMAN_START_X, PACMAN_START_Y};
-    game_state->pacman.direction = (Vector2D){0, 0}; // Reset direction
+    pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
 
     // Reset ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)
@@ -54,11 +63,16 @@ void reset_level(GameState *game_state)
     }
 
     game_state->frightened_timer = 0;
-
     game_state->game_over = false;
+
     LOG_INFO("Level reset successfully.");
 }
 
+/**
+ * @brief Updates the game state, including Pac-Man, ghosts, and collisions.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void update_game_state(GameState *game_state)
 {
     static int ghost_tick_counter = 0;
@@ -83,8 +97,10 @@ void update_game_state(GameState *game_state)
         }
     }
 
+    // Update Pac-Man
     entity_update(&game_state->pacman, game_state);
 
+    // Control ghost movement using a tick counter
     const int GHOST_MOVEMENT_INTERVAL = 2;
     if (ghost_tick_counter % GHOST_MOVEMENT_INTERVAL == 0)
     {
@@ -101,6 +117,7 @@ void update_game_state(GameState *game_state)
                           game_state->ghosts[i].position.x, game_state->ghosts[i].position.y);
             }
 
+            // Update each ghost
             entity_update(&game_state->ghosts[i], game_state);
         }
     }
@@ -109,9 +126,14 @@ void update_game_state(GameState *game_state)
     check_collisions(game_state);
 }
 
+/**
+ * @brief Checks for collisions between Pac-Man and ghosts.
+ *
+ * @param game_state Pointer to the game state structure.
+ */
 void check_collisions(GameState *game_state)
 {
-    const float COLLISION_TOLERANCE = 0.4f; // Reduced tolerance for more precise collision detection
+    const float COLLISION_TOLERANCE = 0.2f; // Reduced tolerance for more precise collision detection
 
     // Check for collisions between Pac-Man and ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)
@@ -127,7 +149,7 @@ void check_collisions(GameState *game_state)
             if (ghost->mode == GHOST_MODE_FRIGHTENED)
             {
                 // Ghost is frightened, Pac-Man eats the ghost
-                game_state->score += 200;                     // Increase score
+                game_state->score += GHOST_EATEN_SCORE;       // Increase score
                 ghost->mode = GHOST_MODE_EATEN;               // Change ghost mode to eaten
                 ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
                 LOG_INFO("Pac-Man ate a ghost! Score: %d", game_state->score);

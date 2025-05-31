@@ -8,6 +8,12 @@
 #include <stdio.h>
 #include <math.h> // For log function
 
+/**
+ * @brief Initializes a ghost entity with its type and starting position.
+ *
+ * @param entity Pointer to the ghost entity.
+ * @param type The type of the ghost (e.g., Blinky, Pinky, Inky, Clyde).
+ */
 void ghost_init(Entity *entity, GhostType type)
 {
     LOG_INFO("Initializing Ghost...");
@@ -29,24 +35,24 @@ void ghost_init(Entity *entity, GhostType type)
     {
     case GHOST_TYPE_BLINKY: // Red ghost
         LOG_DEBUG("Initializing Blinky (Red Ghost)");
-        entity->position = (Vector2D){(float)GHOST_BLINKY_START_X, (float)GHOST_BLINKY_START_Y};
+        entity->position = (Vector2D){GHOST_BLINKY_START_X, GHOST_BLINKY_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 2; // Set wait time for Blinky
         break;
     case GHOST_TYPE_PINKY: // Pink ghost
         LOG_DEBUG("Initializing Pinky (Pink Ghost)");
-        entity->position = (Vector2D){(float)GHOST_PINKY_START_X, (float)GHOST_PINKY_START_Y};
+        entity->position = (Vector2D){GHOST_PINKY_START_X, GHOST_PINKY_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 4; // Set wait time for Blinky
 
         break;
     case GHOST_TYPE_INKY: // Cyan ghost
         LOG_DEBUG("Initializing Inky (Cyan Ghost)");
-        entity->position = (Vector2D){(float)GHOST_INKY_START_X, (float)GHOST_INKY_START_Y};
+        entity->position = (Vector2D){GHOST_INKY_START_X, GHOST_INKY_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 6; // Set wait time for Blinky
 
         break;
     case GHOST_TYPE_CLYDE: // Orange ghost
         LOG_DEBUG("Initializing Clyde (Orange Ghost)");
-        entity->position = (Vector2D){(float)GHOST_CLYDE_START_X, (float)GHOST_CLYDE_START_Y};
+        entity->position = (Vector2D){GHOST_CLYDE_START_X, GHOST_CLYDE_START_Y};
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME + 8; // Set wait time for Blinky
 
         break;
@@ -59,6 +65,17 @@ void ghost_init(Entity *entity, GhostType type)
     ghost->starting_position = entity->position;
 }
 
+/**
+ * @brief Determines the next direction for a ghost to move towards its target.
+ *
+ * @param current Current position of the ghost.
+ * @param target Target position for the ghost.
+ * @param map Pointer to the game map.
+ * @param current_dir Current direction of the ghost.
+ * @param memory Pointer to the ghost's navigation memory.
+ * @param ghost Pointer to the ghost structure.
+ * @return Vector2D The next direction for the ghost.
+ */
 Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
                                            struct Map *map, Vector2D current_dir,
                                            GhostNavigationMemory *memory,
@@ -74,9 +91,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
 
     for (int i = 0; i < 4; i++)
     {
-        Vector2D try_pos = {
-            current.x + directions[i].x,
-            current.y + directions[i].y};
+        Vector2D try_pos = {current.x + directions[i].x, current.y + directions[i].y};
 
         if (!map_is_walkable(map, try_pos.x, try_pos.y, ENTITY_TYPE_GHOST) ||
             (directions[i].x == reverse_dir.x && directions[i].y == reverse_dir.y))
@@ -104,9 +119,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
 
         for (int i = 0; i < available_dirs; i++)
         {
-            Vector2D try_pos = {
-                current.x + possible_dirs[i].x,
-                current.y + possible_dirs[i].y};
+            Vector2D try_pos = {current.x + possible_dirs[i].x, current.y + possible_dirs[i].y};
 
             int dx = target.x - try_pos.x;
             int dy = target.y - try_pos.y;
@@ -166,6 +179,12 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
     return reverse_dir;
 }
 
+/**
+ * @brief Updates the ghost's state and position based on its mode and target.
+ *
+ * @param specific Pointer to the ghost-specific data.
+ * @param passed_gamestate Pointer to the current game state.
+ */
 void ghost_update(void *specific, struct GameState *passed_gamestate)
 {
     Entity *entity = (Entity *)specific;
@@ -215,7 +234,7 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
         }
 
         // Teleport ghost to the gate position after waiting
-        entity->position = (Vector2D){(float)GHOST_SPAWN_GATE_X, (float)GHOST_SPAWN_GATE_Y};
+        entity->position = (Vector2D){GHOST_SPAWN_GATE_X, GHOST_SPAWN_GATE_Y};
         ghost->mode = GHOST_MODE_SCATTER; // Transition to SCATTER mode after exiting
         LOG_DEBUG("Ghost exited spawn area and teleported to gate position (%f, %f).", entity->position.x, entity->position.y);
         return;

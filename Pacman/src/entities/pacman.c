@@ -5,19 +5,31 @@
 #include "../../include/core/game_state.h"
 #include <stdio.h>
 
+/**
+ * @brief Initializes the Pac-Man entity with its starting position and attributes.
+ *
+ * @param entity Pointer to the Pac-Man entity.
+ * @param position The starting position of Pac-Man.
+ */
 void pacman_init(Entity *entity, Vector2D position)
 {
     LOG_INFO("Initializing Pac-Man...");
 
-    // Access the embedded Pacman structure directly
     Pacman *pacman = &entity->specific.pacman;
     pacman->lives = PACMAN_START_LIVES;
+
     entity_init(entity, ENTITY_TYPE_PACMAN, pacman_update);
     entity->position = position;
     entity->direction = (Vector2D){0, 0};
     entity->speed = PACMAN_SPEED;
 }
 
+/**
+ * @brief Updates the Pac-Man entity, including movement and interactions with the map.
+ *
+ * @param specific Pointer to the Pac-Man-specific data.
+ * @param passed_gamestate Pointer to the current game state.
+ */
 void pacman_update(void *specific, struct GameState *passed_gamestate)
 {
     Entity *entity = (Entity *)specific;
@@ -32,8 +44,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     // Check if the buffered direction is valid
     if (map_is_walkable(&game_state->map, (int)buffered_next_position.x, (int)buffered_next_position.y, ENTITY_TYPE_PACMAN))
     {
-        // Apply the buffered direction
-        entity->direction = pacman->buffered_direction;
+        entity->direction = pacman->buffered_direction; // Apply the buffered direction
     }
     else
     {
@@ -48,40 +59,65 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     // Check if the current direction is valid
     if (map_is_walkable(&game_state->map, (int)next_position.x, (int)next_position.y, ENTITY_TYPE_PACMAN))
     {
-        // Move Pac-Man in the current direction
-        entity->position = next_position;
+        entity->position = next_position; // Move Pac-Man in the current direction
     }
     else
     {
         LOG_DEBUG("Pac-Man's move blocked by a wall or gate.");
     }
 
-    // Check for collisions with pellets
+    // Check for collisions with pellets or power pellets
+    handle_pacman_collisions(entity, game_state);
+}
+
+/**
+ * @brief Handles Pac-Man's collisions with pellets, power pellets, and updates the game state.
+ *
+ * @param entity Pointer to the Pac-Man entity.
+ * @param game_state Pointer to the current game state.
+ */
+void handle_pacman_collisions(Entity *entity, GameState *game_state)
+{
     int tile_x = (int)(entity->position.x + 0.5f);
     int tile_y = (int)(entity->position.y + 0.5f);
+
     if (tile_x >= 0 && tile_x < game_state->map.width && tile_y >= 0 && tile_y < game_state->map.height)
     {
-        if (game_state->map.tiles[tile_y][tile_x].type == TILE_PELLET)
-        {
-            game_state->score += PELLET_SCORE;                       // Use constant for pellet score
-            game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the pellet from the map
-        }
-        else if (game_state->map.tiles[tile_y][tile_x].type == TILE_POWER_PELLET)
-        {
-            game_state->score += POWER_PELLET_SCORE;                 // Use constant for power pellet score
-            game_state->map.tiles[tile_y][tile_x].type = TILE_EMPTY; // Remove the power pellet
-            game_state->frightened_timer = FRIGHTENED_MODE_DURATION; // Set frightened mode duration
+        Tile *current_tile = &game_state->map.tiles[tile_y][tile_x];
 
-            // Set all ghosts to frightened mode
-            for (int i = 0; i < NUM_GHOSTS; i++)
-            {
-                Ghost *ghost = &game_state->ghosts[i].specific.ghost;
-                if (ghost->mode != GHOST_MODE_EATEN && ghost->mode != GHOST_MODE_EXITING)
-                {
-                    ghost->mode = GHOST_MODE_FRIGHTENED;
-                    ghost->frightened_timer = FRIGHTENED_MODE_DURATION;
-                }
-            }
+        if (current_tile->type == TILE_PELLET)
+        {
+            game_state->score += PELLET_SCORE; // Increase score for pellet
+            current_tile->type = TILE_EMPTY;   // Remove the pellet from the map
+        }
+        else if (current_tile->type == TILE_POWER_PELLET)
+        {
+            game_state->score += POWER_PELLET_SCORE; // Increase score for power pellet
+            current_tile->type = TILE_EMPTY;         // Remove the power pellet
+            activate_frightened_mode(game_state);    // Activate frightened mode for ghosts
         }
     }
+}
+
+/**
+ * @brief Activates frightened mode for all ghosts and sets the frightened timer.
+ *
+ * @param game_state Pointer to the current game state.
+ */
+void activate_frightened_mode(GameState *game_state)
+{
+    game_state->frightened_timer = FRIGHTENED_MODE_DURATION;
+
+    for (int i = 0; i < NUM_GHOSTS; i++)
+    {
+        Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+
+        if (ghost->mode != GHOST_MODE_EATEN && ghost->mode != GHOST_MODE_EXITING)
+        {
+            ghost->mode = GHOST_MODE_FRIGHTENED;
+            ghost->frightened_timer = FRIGHTENED_MODE_DURATION;
+        }
+    }
+
+    LOG_INFO("Frightened mode activated for all ghosts.");
 }

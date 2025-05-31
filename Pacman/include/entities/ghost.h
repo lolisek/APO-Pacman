@@ -44,6 +44,7 @@ typedef struct
     int waiting_timer;
     Vector2D target_tile; // Target tile for the ghost to move towards
     Vector2D starting_position;       // Starting position of the ghost
+    uint64_t mode_timer;              // Added to track mode timing
     GhostNavigationMemory navigation; // Last position stored
 } Ghost;
 
