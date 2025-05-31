@@ -58,7 +58,7 @@ void pacman_update(void *specific, struct GameState *passed_gamestate)
     handle_pacman_collisions(entity, game_state);
 }
 
-void handle_pacman_collisions(Entity *entity, GameState *game_state)
+void handle_pacman_collisions(struct Entity *entity, struct GameState *game_state)
 {
     int tile_x = (int)(entity->position.x + 0.5f);
     int tile_y = (int)(entity->position.y + 0.5f);

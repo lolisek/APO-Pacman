@@ -150,7 +150,6 @@ void run_main_menu()
             if (menu.selected == 0)
             {
                 LOG_INFO("Starting game...");
-                GameState game_state;
                 run_game_loop(menu.framebuffer);
                 draw_menu(&menu);
                 lcd_update(menu.framebuffer);
@@ -158,6 +157,7 @@ void run_main_menu()
             else if (menu.selected == 1)
             {
                 LOG_INFO("Showing scoreboard...");
+                load_scores(&sb);
                 handle_scoreboard(&sb, menu.framebuffer);
                 draw_menu(&menu);
                 lcd_update(menu.framebuffer);

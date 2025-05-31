@@ -3,7 +3,7 @@
  * @brief Provides logging functionality for debugging and error reporting.
  */
 
-#define DEBUG_MODE /**< Uncomment to enable debug logging. */
+// #define DEBUG_MODE /**< Uncomment to enable debug logging. */
 
 #ifndef APO_PACMAN_LOGGER_H
 #define APO_PACMAN_LOGGER_H

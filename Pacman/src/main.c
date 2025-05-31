@@ -25,6 +25,7 @@
 #include "../include/gui/display_scoreboard.h"
 #include "../include/utils/timer.h"
 #include "../include/microzed/serialize_lock.h"
+#include "../include/gui/main_menu.h"
 
 #define _BSD_SOURCE // for usleep
 

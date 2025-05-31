@@ -1,29 +1,43 @@
 #include "../../include/gui/display_scoreboard.h"
 #include "../../include/utils/constants.h"
 #include "../../include/gui/ppm_loader.h"
+#include "../../include/gui/draw_text.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h> // For qsort
+#include "../../include/utils/logger.h" // Include logger for logging macros
 
 void init_scoreboard(scoreboard_t *sb)
 {
     sb->total_lines = 0;
     sb->scroll_offset = 0;
     memset(sb->lines, 0, sizeof(sb->lines));
+    LOG_INFO("Initialized scoreboard");
 }
 
 int load_scores(scoreboard_t *sb)
 {
     char scores_path[256];
     get_resource_path(scores_path, sizeof(scores_path), "scores.txt");
+    LOG_DEBUG("Loading scores from path: %s", scores_path);
+
     FILE *file = fopen(scores_path, "r");
     if (!file)
     {
+        LOG_ERROR("Failed to open scores file for reading");
         return 0;
     }
 
     sb->total_lines = 0;
     memset(sb->lines, 0, sizeof(sb->lines));
+
+    LOG_DEBUG("Contents of scores file during loading:");
+    char line[SCORE_LINE_LENGTH];
+    while (fgets(line, SCORE_LINE_LENGTH, file))
+    {
+        LOG_DEBUG("%s", line);
+    }
+    rewind(file); // Reset file pointer to the beginning
 
     while (sb->total_lines < MAX_SCORES)
     {
@@ -42,7 +56,7 @@ int load_scores(scoreboard_t *sb)
         }
     }
 
-    fprintf(stderr, "Loaded %d scores\n", sb->total_lines);
+    LOG_INFO("Loaded %d scores", sb->total_lines);
     fclose(file);
     return 1;
 }
@@ -63,41 +77,66 @@ int save_score(const char *name, int score)
 {
     char scores_path[256];
     get_resource_path(scores_path, sizeof(scores_path), "scores.txt");
+    LOG_DEBUG("Resolved scores path: %s", scores_path);
 
     scoreboard_t sb;
     init_scoreboard(&sb);
-    load_scores(&sb);
+    if (!load_scores(&sb))
+    {
+        LOG_ERROR("Failed to load scores");
+    }
+    else
+    {
+        LOG_INFO("Loaded %d scores", sb.total_lines);
+    }
 
     if (sb.total_lines < MAX_SCORES)
     {
         snprintf(sb.lines[sb.total_lines], SCORE_LINE_LENGTH, "%s: %d", name, score);
         sb.total_lines++;
+        LOG_INFO("Added new score: %s: %d", name, score);
     }
     else
     {
         int lowest_score = 0;
         sscanf(strrchr(sb.lines[sb.total_lines - 1], ':') + 1, "%d", &lowest_score);
+        LOG_DEBUG("Lowest score in scoreboard: %d", lowest_score);
         if (score > lowest_score)
         {
             snprintf(sb.lines[sb.total_lines - 1], SCORE_LINE_LENGTH, "%s: %d", name, score);
+            LOG_INFO("Replaced lowest score with: %s: %d", name, score);
         }
     }
 
     qsort(sb.lines, sb.total_lines, SCORE_LINE_LENGTH, compare_scores);
+    LOG_DEBUG("Sorted scores");
 
     FILE *file = fopen(scores_path, "w");
     if (!file)
     {
-        perror("Failed to open scores file");
+        LOG_ERROR("Failed to open scores file for writing");
         return -1;
     }
 
     for (int i = 0; i < sb.total_lines; i++)
     {
         fprintf(file, "%s\n", sb.lines[i]);
+        LOG_DEBUG("Wrote score to file: %s", sb.lines[i]);
     }
 
     fclose(file);
+    LOG_INFO("Successfully saved scores");
+
+    // Reload scores into the system after saving
+    if (!load_scores(&sb))
+    {
+        LOG_ERROR("Failed to reload scores after saving");
+    }
+    else
+    {
+        LOG_INFO("Reloaded %d scores after saving", sb.total_lines);
+    }
+
     return 0;
 }
 

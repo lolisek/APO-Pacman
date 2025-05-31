@@ -77,7 +77,7 @@ Vector2D get_next_direction_towards_target(Vector2D current, Vector2D target,
     {
         Vector2D try_pos = {current.x + directions[i].x, current.y + directions[i].y};
 
-        if (!map_is_walkable(map, try_pos.x, try_pos.y, ENTITY_TYPE_GHOST) ||
+        if (!map_is_walkable((Map *)map, try_pos.x, try_pos.y, ENTITY_TYPE_GHOST) ||
             (directions[i].x == reverse_dir.x && directions[i].y == reverse_dir.y))
         {
             continue;
@@ -239,7 +239,7 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     Vector2D next_dir = get_next_direction_towards_target(
         entity->position,
         ghost->target_tile,
-        &game_state->map,
+        (struct Map *)&game_state->map,
         entity->direction,
         &ghost->navigation,
         ghost);

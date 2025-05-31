@@ -5,6 +5,7 @@
 #include "../../include/utils/constants.h"
 #include "../../include/utils/timer.h"
 #include <stdio.h>
+#include <math.h>
 
 void init_game_state(GameState *game_state)
 {
