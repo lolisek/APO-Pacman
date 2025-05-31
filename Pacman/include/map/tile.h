@@ -3,20 +3,24 @@
 
 #include <stdbool.h>
 
-// Tile types (wall, pellet, empty, etc.)
+/**
+ * @brief Enum representing the types of tiles in the game map.
+ */
 typedef enum
 {
-    TILE_EMPTY = 0,
-    TILE_WALL,
-    TILE_PELLET,
-    TILE_POWER_PELLET,
-    TILE_OUT_OF_BOUNDS, // Used for ghost gates
+    TILE_EMPTY = 0,     /**< An empty tile. */
+    TILE_WALL,          /**< A wall tile. */
+    TILE_PELLET,        /**< A pellet tile. */
+    TILE_POWER_PELLET,  /**< A power pellet tile. */
+    TILE_OUT_OF_BOUNDS, /**< A tile used for ghost gates or out-of-bounds areas. */
 } TileType;
 
-// Tile structure
+/**
+ * @brief Structure representing a tile in the game map.
+ */
 typedef struct
 {
-    TileType type; // Type of tile (wall, pellet, etc.)
+    TileType type; /**< The type of the tile (e.g., wall, pellet, etc.). */
 } Tile;
 
 #endif // APO_PACMAN_TILE_H
