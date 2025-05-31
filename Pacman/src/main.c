@@ -1,15 +1,16 @@
 /*******************************************************************
-  Project main function template for MicroZed based MZ_APO board
-  designed by Petr Porazil at PiKRON
+  Pac-Man Game for MicroZed based MZ_APO board
+  Designed and implemented by Veronica Marie Ohrazdová 
+  and Nguyen Duc Minh
 
-  change_me.c      - main file
+  pacman_main.c – main application file
 
-  include your name there and license for distribution.
+  This project is developed as part of the coursework for 
+  APO at CTU FEL.
 
-  Remove next text: This line should not appear in submitted
-  work and project name should be change to match real application.
-  If this text is there I want 10 points subtracted from final
-  evaluation.
+  This software is provided under the MIT License and may be freely
+  used, modified, and distributed for academic and non-commercial use,
+  provided the above authors are credited.
 
  *******************************************************************/
 
