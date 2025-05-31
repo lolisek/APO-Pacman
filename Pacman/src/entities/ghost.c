@@ -6,6 +6,7 @@
 #include "../../include/utils/timer.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h> // For log function
 
 void ghost_init(Entity *entity, GhostType type)
 {
@@ -174,6 +175,11 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     LOG_DEBUG("Ghost index: %ld, type: %d, mode: %d, position: (%f, %f), waiting_timer: %d",
               game_state->ghosts, ghost->type, ghost->mode, entity->position.x, entity->position.y, ghost->waiting_timer);
 
+    // Increase ghost speed over time
+    uint64_t elapsed_time = timer_get_global_elapsed_ms() / 1000;     // Convert to seconds
+    float speed_multiplier = 1.0f + log(1.0f + elapsed_time) / 10.0f; // Logarithmic acceleration
+    entity->speed = GHOST_SPEED * speed_multiplier;
+
     // Handle frightened mode
     if (ghost->mode == GHOST_MODE_FRIGHTENED)
     {
@@ -191,11 +197,11 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
     // Handle ghost movement
     if (ghost->mode == GHOST_MODE_EATEN)
     {
-        // Teleport ghost to its starting position
+        // Teleport ghost to spawn point
         entity->position = ghost->starting_position;
         ghost->waiting_timer = GHOST_EATEN_WAIT_TIME; // Set wait time
         ghost->mode = GHOST_MODE_EXITING;             // Set mode to exiting
-        LOG_DEBUG("Ghost index %ld teleported to starting position at (%f, %f).", game_state->ghosts, ghost->starting_position.x, ghost->starting_position.y);
+        LOG_DEBUG("Ghost index %ld teleported to spawn point at (%f, %f).", game_state->ghosts, ghost->starting_position.x, ghost->starting_position.y);
         return;
     }
 
@@ -241,8 +247,8 @@ void ghost_update(void *specific, struct GameState *passed_gamestate)
         ghost);
 
     Vector2D next_pos = {
-        entity->position.x + next_dir.x,
-        entity->position.y + next_dir.y};
+        entity->position.x + next_dir.x * entity->speed,
+        entity->position.y + next_dir.y * entity->speed};
 
     if (map_is_walkable(&game_state->map, (int)next_pos.x, (int)next_pos.y, ENTITY_TYPE_GHOST))
     {

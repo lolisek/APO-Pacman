@@ -43,43 +43,20 @@ void reset_level(GameState *game_state)
     LOG_INFO("Resetting level...");
 
     // Reset Pac-Man
-    pacman_init(&game_state->pacman, (Vector2D){PACMAN_START_X, PACMAN_START_Y});
+    game_state->pacman.position = (Vector2D){PACMAN_START_X, PACMAN_START_Y};
+    game_state->pacman.direction = (Vector2D){0, 0}; // Reset direction
 
     // Reset ghosts
-    ghost_init(&game_state->ghosts[0], GHOST_TYPE_BLINKY); // Blinky
-    ghost_init(&game_state->ghosts[1], GHOST_TYPE_PINKY);  // Pinky
-    ghost_init(&game_state->ghosts[2], GHOST_TYPE_INKY);   // Inky
-    ghost_init(&game_state->ghosts[3], GHOST_TYPE_CLYDE);  // Clyde
-
-    // Reset score and lives
-    game_state->score = 0;
-    game_state->lives = PACMAN_START_LIVES;
-    game_state->frightened_timer = 0;
-
-    // Reload the map
-    map_init(&game_state->map);
-    char map_path[256];
-    get_resource_path(map_path, sizeof(map_path), "level1.txt");
-    if (!map_load_from_file(&game_state->map, map_path))
+    for (int i = 0; i < NUM_GHOSTS; i++)
     {
-        LOG_ERROR("Failed to reload map from file: %s", map_path);
-        game_state->game_over = true;
-        return;
+        ghost_init(&game_state->ghosts[i], game_state->ghosts[i].specific.ghost.type);
+        game_state->ghosts[i].specific.ghost.waiting_timer = GHOST_EATEN_WAIT_TIME * (i + 1); // Staggered respawn timers
     }
+
+    game_state->frightened_timer = 0;
 
     game_state->game_over = false;
     LOG_INFO("Level reset successfully.");
-}
-
-void cleanup_game(GameState *game_state)
-{
-    LOG_INFO("Cleaning up game state...");
-
-    // Free any allocated resources
-    // For example, if you dynamically allocate memory for the map or entities,
-    // you should free it here.
-
-    LOG_INFO("Game state cleanup complete.");
 }
 
 void update_game_state(GameState *game_state)
@@ -113,6 +90,17 @@ void update_game_state(GameState *game_state)
     {
         for (int i = 0; i < NUM_GHOSTS; i++)
         {
+            Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+
+            // Ensure ghosts in EXITING mode spawn at the gate even if frightened
+            if (ghost->mode == GHOST_MODE_EXITING && ghost->waiting_timer == 0)
+            {
+                game_state->ghosts[i].position = (Vector2D){GHOST_SPAWN_GATE_X, GHOST_SPAWN_GATE_Y};
+                ghost->mode = GHOST_MODE_SCATTER; // Transition to SCATTER mode
+                LOG_DEBUG("Ghost exited spawn area and teleported to gate position (%f, %f).",
+                          game_state->ghosts[i].position.x, game_state->ghosts[i].position.y);
+            }
+
             entity_update(&game_state->ghosts[i], game_state);
         }
     }
@@ -123,18 +111,19 @@ void update_game_state(GameState *game_state)
 
 void check_collisions(GameState *game_state)
 {
-    const float COLLISION_TOLERANCE = 0.5f; // Allow a small tolerance for collision detection
+    const float COLLISION_TOLERANCE = 0.4f; // Reduced tolerance for more precise collision detection
 
     // Check for collisions between Pac-Man and ghosts
     for (int i = 0; i < NUM_GHOSTS; i++)
     {
+        Ghost *ghost = &game_state->ghosts[i].specific.ghost;
+
+        // Calculate the distance between Pac-Man and the ghost
         float dx = fabsf(game_state->ghosts[i].position.x - game_state->pacman.position.x);
         float dy = fabsf(game_state->ghosts[i].position.y - game_state->pacman.position.y);
 
         if (dx <= COLLISION_TOLERANCE && dy <= COLLISION_TOLERANCE)
         {
-            // Handle collision with ghost
-            Ghost *ghost = &game_state->ghosts[i].specific.ghost;
             if (ghost->mode == GHOST_MODE_FRIGHTENED)
             {
                 // Ghost is frightened, Pac-Man eats the ghost
@@ -148,26 +137,18 @@ void check_collisions(GameState *game_state)
                 // Pac-Man loses a life
                 game_state->lives--;
                 LOG_INFO("Pac-Man hit by a ghost! Lives remaining: %d", game_state->lives);
+
                 if (game_state->lives <= 0)
                 {
                     game_state->game_over = true; // Game over
                     LOG_INFO("Game Over!");
+                    return; // Exit immediately to avoid further processing
                 }
 
-                // Reset Pac-Man's position
-                game_state->pacman.position.x = PACMAN_START_X;
-                game_state->pacman.position.y = PACMAN_START_Y;
+                reset_level(game_state); // Reset the level instead of just Pac
 
-                // Reset ghost positions
-                for (int j = 0; j < NUM_GHOSTS; j++)
-                {
-                    game_state->ghosts[j].position.x = game_state->ghosts[j].specific.ghost.starting_position.x;
-                    game_state->ghosts[j].position.y = game_state->ghosts[j].specific.ghost.starting_position.y;
-                    game_state->ghosts[j].specific.ghost.mode = GHOST_MODE_EXITING; // Reset ghost mode to exiting
-                }
-
-                // Reset frightened timer
-                game_state->frightened_timer = 0;
+                // Break out of the loop to avoid multiple life deductions in a single frame
+                break;
             }
         }
     }

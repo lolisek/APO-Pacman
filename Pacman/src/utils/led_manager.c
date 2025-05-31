@@ -5,8 +5,29 @@
 
 static bool all_leds_initialized = false;
 
+#define total_leds 32
+
 void update_leds(const GameState *game_state) {
-    int total_leds = 32;
+    // If the game is not running, turn off the RGB LED
+    if (!game_state || game_state->game_over)
+    {
+        set_rgb1(0, 0, 0); // Turn off RGB LED
+        return;
+    }
+
+    // RGB LED state indication
+    if (game_state->game_over)
+    {
+        set_rgb1(255, 0, 0); // Red for game over
+    }
+    else if (game_state->frightened_timer > 0)
+    {
+        set_rgb1(0, 0, 255); // Blue when power-up is active
+    }
+    else
+    {
+        set_rgb1(0, 255, 0); // Green for running
+    }
 
     if (game_state->frightened_timer > 0) {
         // Frightened state: Start with all LEDs on and turn them off one by one

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-void handle_input(GameState *gamestate, bool *running)
+void handle_input(GameState *gamestate)
 {
     static uint8_t last_knob_pos = 0;
     static int current_dir_index = 0; // Start facing right
@@ -44,7 +44,7 @@ void handle_input(GameState *gamestate, bool *running)
     if (blue_knob_is_pressed())
     {
         LOG_INFO("Exit input detected. Exiting game...");
-        *running = false; // Set running to false to exit the game loop
+        gamestate->game_over = true;
         return;
     }
 }

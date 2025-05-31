@@ -15,6 +15,6 @@ static const Vector2D directions[] = {
 };
 
 // Function to handle user input
-void handle_input(GameState *gamestate, bool *running);
+void handle_input(GameState *gamestate);
 
 #endif // APO_PACMAN_INPUT_H
