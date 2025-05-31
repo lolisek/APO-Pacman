@@ -53,7 +53,7 @@ This project implements a Pacman game designed for the MicroZed-based MZ_APO boa
 - `resources/`: Game assets such as images and level files.
 
 ## License
-This project is licensed under the GNU GPL License. See the `LICENSE` file for details.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Acknowledgments
 - Designed for the MZ_APO board by Petr Porazil at PiKRON.
